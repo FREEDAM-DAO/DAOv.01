@@ -1,0 +1,34 @@
+# Environment
+.env
+.env.local
+
+# Dependencies
+node_modules/
+
+# Hardhat
+cache/
+artifacts/
+contracts/deployments/
+
+# Coverage
+coverage/
+coverage.json
+
+# Build
+dist/
+build/
+.next/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
