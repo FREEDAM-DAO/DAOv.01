@@ -5,8 +5,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Governance: Snapshot](https://img.shields.io/badge/Governance-Snapshot-purple)](https://snapshot.org/#/freedam.eth)
-[![Discord](https://img.shields.io/badge/Discord-Join-7289DA)](https://discord.gg/freedam)
-[![Twitter Follow](https://img.shields.io/twitter/follow/FREEDAM_DAO?style=social)](https://x.com/FREEDAMDAO)
+[![Twitter Follow](https://img.shields.io/twitter/follow/FREEDAMDAO?style=social)](https://x.com/FREEDAMDAO)
 
 ---
 
