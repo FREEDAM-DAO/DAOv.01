@@ -125,3 +125,62 @@ contract FREEDAMMembership is ERC1155, Ownable, ReentrancyGuard {
             emit MembershipMinted(to, mType);
         }
     }
+
+    // ============ Revocation ============
+    /**
+     * @notice Revoke a member's membership (burn token).
+     * @param member Address to revoke.
+     */
+    function revokeMembership(address member) 
+        external 
+        onlyOwner 
+        nonReentrant 
+    {
+        if (!_hasMembership[member]) revert NoMembership(member);
+        
+        uint256 mType = _membershipType[member];
+        
+        _burn(member, mType, 1);
+        
+        _hasMembership[member] = false;
+        _revoked[member] = true;
+        _membershipType[member] = 0;
+        totalMembers--;
+        
+        emit MembershipRevoked(member);
+    }
+    
+    // ============ View Functions ============
+    /**
+     * @notice Check if an address holds FRDM-ID membership.
+     */
+    function hasMembership(address account) external view returns (bool) {
+        return _hasMembership[account];
+    }
+    
+    /**
+     * @notice Get the membership type of an address.
+     * @return 0=Founding, 1=Standard, 2=Delegate. Returns 0 if no membership.
+     */
+    function getMembershipType(address account) external view returns (uint256) {
+        require(_hasMembership[account], "No membership");
+        return _membershipType[account];
+    }
+    
+    /**
+     * @notice Check if an address was previously revoked.
+     */
+    function isRevoked(address account) external view returns (bool) {
+        return _revoked[account];
+    }
+    
+    // ============ Metadata ============
+    /**
+     * @notice Update the metadata URI for token metadata.
+     * @param newURI New URI pointing to metadata JSON.
+     */
+    function setURI(string memory newURI) external onlyOwner {
+        _setURI(newURI);
+        emit MetadataURIUpdated(newURI);
+    }
+}
