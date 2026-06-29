@@ -93,3 +93,57 @@ describe("FREEDAMMembership", function () {
       ).to.be.revertedWithCustomError(contract, "Soulbound__CannotTransfer");
     });
   });
+
+  // ===== Revocation =====
+  describe("Revocation", function () {
+    it("Should revoke a membership", async function () {
+      await contract.mintMembership(addr1.address, 1);
+      await contract.revokeMembership(addr1.address);
+      expect(await contract.hasMembership(addr1.address)).to.be.false;
+      expect(await contract.isRevoked(addr1.address)).to.be.true;
+      expect(await contract.totalMembers()).to.equal(0);
+    });
+    it("Should revert if revoking non-member", async function () {
+      await expect(contract.revokeMembership(addr1.address))
+        .to.be.revertedWithCustomError(contract, "NoMembership");
+    });
+    it("Should prevent re-minting after revocation", async function () {
+      await contract.mintMembership(addr1.address, 1);
+      await contract.revokeMembership(addr1.address);
+      await expect(contract.mintMembership(addr1.address, 1))
+        .to.be.revertedWithCustomError(contract, "MembershipRevoked");
+    });
+    it("Should revert if non-owner tries to revoke", async function () {
+      await contract.mintMembership(addr1.address, 1);
+      await expect(contract.connect(addr2).revokeMembership(addr1.address))
+        .to.be.revertedWithCustomError(contract, "OwnableUnauthorizedAccount");
+    });
+  });
+
+  // ===== View Functions =====
+  describe("View Functions", function () {
+    it("Should return correct membership type", async function () {
+      await contract.mintMembership(addr1.address, 2);
+      expect(await contract.getMembershipType(addr1.address)).to.equal(2);
+    });
+    it("Should revert on getMembershipType for non-member", async function () {
+      await expect(contract.getMembershipType(addr1.address))
+        .to.be.revertedWith("No membership");
+    });
+    it("Should return false for isRevoked on fresh address", async function () {
+      expect(await contract.isRevoked(addr1.address)).to.be.false;
+    });
+  });
+
+  // ===== URI =====
+  describe("Metadata URI", function () {
+    it("Should update URI (owner only)", async function () {
+      await contract.setURI("https://freedam.io/metadata/{id}.json");
+      // URI is stored internally; we just verify no revert
+    });
+    it("Should revert if non-owner sets URI", async function () {
+      await expect(contract.connect(addr1).setURI("https://example.com"))
+        .to.be.revertedWithCustomError(contract, "OwnableUnauthorizedAccount");
+    });
+  });
+});
