@@ -40,7 +40,7 @@ describe("FREEDAMMembership", function () {
     });
     it("Should revert if non-owner tries to mint", async function () {
       await expect(contract.connect(addr1).mintMembership(addr2.address, 1))
-        .to.be.revertedWithCustomError(contract, "OwnableUnauthorizedAccount");
+        .to.be.revertedWith("Ownable: caller is not the owner");
     });
     it("Should revert if address already has membership", async function () {
       await contract.mintMembership(addr1.address, 1);
@@ -111,12 +111,12 @@ describe("FREEDAMMembership", function () {
       await contract.mintMembership(addr1.address, 1);
       await contract.revokeMembership(addr1.address);
       await expect(contract.mintMembership(addr1.address, 1))
-        .to.be.revertedWithCustomError(contract, "MembershipRevoked");
+        .to.be.revertedWithCustomError(contract, "MembershipAlreadyRevoked");
     });
     it("Should revert if non-owner tries to revoke", async function () {
       await contract.mintMembership(addr1.address, 1);
       await expect(contract.connect(addr2).revokeMembership(addr1.address))
-        .to.be.revertedWithCustomError(contract, "OwnableUnauthorizedAccount");
+        .to.be.revertedWith("Ownable: caller is not the owner");
     });
   });
 
@@ -143,7 +143,7 @@ describe("FREEDAMMembership", function () {
     });
     it("Should revert if non-owner sets URI", async function () {
       await expect(contract.connect(addr1).setURI("https://example.com"))
-        .to.be.revertedWithCustomError(contract, "OwnableUnauthorizedAccount");
+        .to.be.revertedWith("Ownable: caller is not the owner");
     });
   });
 });
