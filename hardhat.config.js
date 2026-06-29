@@ -55,7 +55,7 @@ module.exports = {
         chainId: 11155420,
         urls: {
           apiURL: "https://api-sepolia-optimistic.etherscan.io/api",
-          browserURL: "https://sepolia-optimism.etherscan.io",
+          browserURL: "https://sepolia-optimistic.etherscan.io",
         },
       },
     ],
