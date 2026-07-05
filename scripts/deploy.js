@@ -8,6 +8,7 @@
 // Requires PRIVATE_KEY in .env for testnet deployment.
 
 const { ethers } = require("hardhat");
+const hre = require("hardhat");
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -36,7 +37,7 @@ async function main() {
   console.log("✅ FREEDAMMembership deployed successfully!");
   console.log("   Contract address:", address);
   console.log("   Owner:", deployer.address);
-  console.log("   Network:", network.name, "(chainId:", network.config.chainId, ")");
+  console.log("   Network:", hre.network.name, "(chainId:", hre.network.config.chainId, ")");
   console.log("-".repeat(50));
 
   // Verify key functions exist
@@ -46,7 +47,7 @@ async function main() {
   console.log("\nNext steps:");
   console.log("  1. Save the contract address above");
   console.log("  2. Verify on block explorer:");
-  console.log("     npx hardhat verify --network " + network.name + " " + address + " " + deployer.address);
+  console.log("     npx hardhat verify --network " + hre.network.name + " " + address + " " + deployer.address);
   console.log("  3. Mint first membership:");
   console.log("     Use the contract ABI to call mintMembership(addr, memberType)");
 }
