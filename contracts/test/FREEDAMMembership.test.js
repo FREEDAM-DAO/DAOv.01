@@ -78,6 +78,53 @@ describe("FREEDAMMembership", function () {
     });
   });
 
+  // ===== Permissionless Self-Mint =====
+  describe("Self-Mint (Permissionless)", function () {
+    it("Should allow anyone to self-mint a standard membership", async function () {
+      await contract.connect(addr1).selfMint();
+      expect(await contract.hasMembership(addr1.address)).to.be.true;
+      expect(await contract.getMembershipType(addr1.address)).to.equal(1);
+      expect(await contract.totalMembers()).to.equal(1);
+    });
+
+    it("Should allow multiple users to self-mint independently", async function () {
+      await contract.connect(addr1).selfMint();
+      await contract.connect(addr2).selfMint();
+      await contract.connect(addr3).selfMint();
+      expect(await contract.totalMembers()).to.equal(3);
+      expect(await contract.getMembershipType(addr1.address)).to.equal(1);
+      expect(await contract.getMembershipType(addr2.address)).to.equal(1);
+      expect(await contract.getMembershipType(addr3.address)).to.equal(1);
+    });
+
+    it("Should revert if already has membership (self-mint after owner mint)", async function () {
+      await contract.mintMembership(addr1.address, 0); // owner mints founding
+      await expect(contract.connect(addr1).selfMint())
+        .to.be.revertedWithCustomError(contract, "AlreadyHasMembership");
+    });
+
+    it("Should revert if self-minting twice", async function () {
+      await contract.connect(addr1).selfMint();
+      await expect(contract.connect(addr1).selfMint())
+        .to.be.revertedWithCustomError(contract, "AlreadyHasMembership");
+    });
+
+    it("Should revert if self-minting after revocation", async function () {
+      await contract.mintMembership(addr1.address, 1);
+      await contract.revokeMembership(addr1.address);
+      await expect(contract.connect(addr1).selfMint())
+        .to.be.revertedWithCustomError(contract, "MembershipAlreadyRevoked");
+    });
+
+    it("Self-mint should NOT grant founding or delegate membership", async function () {
+      await contract.connect(addr1).selfMint();
+      const memberType = await contract.getMembershipType(addr1.address);
+      expect(memberType).to.equal(1); // STANDARD_MEMBER only
+      expect(memberType).to.not.equal(0); // not FOUNDING_MEMBER
+      expect(memberType).to.not.equal(2); // not DELEGATE
+    });
+  });
+
   // ===== Soulbound Enforcement =====
   describe("Soulbound (Non-Transferable)", function () {
     it("Should prevent safeTransferFrom", async function () {
