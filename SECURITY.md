@@ -4,7 +4,7 @@
 
 This security policy covers:
 - All smart contracts in `contracts/src/`
-- The FREEDAM dApp frontend at freedam.io
+- The FREEDAM dApp frontend at freedamdao.org
 - The Gnosis Safe treasury configuration
 - The Snapshot governance space and custom voting strategies
 
@@ -12,7 +12,7 @@ This security policy covers:
 
 **Do not open a public GitHub Issue for security vulnerabilities.**
 
-Report vulnerabilities to: **security@freedam.io**
+Report vulnerabilities to: **security@freedamdao.org**
 
 Include:
 - Description of the vulnerability
@@ -56,4 +56,4 @@ A formal bug bounty program is planned for launch following the completion of sm
 
 ---
 
-*FREEDAM Security Policy v1.0 | Tech Working Group | security@freedam.io*
+*FREEDAM Security Policy v1.0 | Tech Working Group | security@freedamdao.org*

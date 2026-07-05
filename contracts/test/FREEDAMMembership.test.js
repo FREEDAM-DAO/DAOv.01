@@ -138,7 +138,7 @@ describe("FREEDAMMembership", function () {
   // ===== URI =====
   describe("Metadata URI", function () {
     it("Should update URI (owner only)", async function () {
-      await contract.setURI("https://freedam.io/metadata/{id}.json");
+      await contract.setURI("https://freedamdao.org/metadata/{id}.json");
       // URI is stored internally; we just verify no revert
     });
     it("Should revert if non-owner sets URI", async function () {

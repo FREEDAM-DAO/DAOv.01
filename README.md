@@ -71,10 +71,10 @@ These will be added later based on community input.
 | Whitepaper        | [WHITEPAPER.md](WHITEPAPER.md)            |
 | Governance Docs   | [governance/](governance/)                |
 | Security          | [SECURITY.md](SECURITY.md)                |
-| Mint FRDM-ID      | Coming soon — freedam.io                  |
+| Mint FRDM-ID      | Coming soon — freedamdao.org/mint         |
 | Vote              | [snapshot.org/#/freedam.eth](https://snapshot.org/#/freedam.eth) |
 | Discord           | [discord.gg/freedam](https://discord.gg/freedam) |
-| X / Twitter       | [@FREEDAM_DAO](https://x.com/FREEDAM_DAO) |
+| X / Twitter       | [@FREEDAMDAO](https://x.com/FREEDAMDAO) |
 
 ---
 
