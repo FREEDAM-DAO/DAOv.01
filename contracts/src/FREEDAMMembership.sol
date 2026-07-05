@@ -101,6 +101,25 @@ contract FREEDAMMembership is ERC1155, Ownable, ReentrancyGuard {
     }
 
     /**
+     * @notice Permissionless self-mint of a standard membership.
+     * @dev Anyone can call this to mint a STANDARD_MEMBER (type 1) token to themselves.
+     *      Founding and delegate memberships remain owner-controlled via mintMembership().
+     *      This is what makes FRDM-ID "permissionless" — no gatekeeper needed to join.
+     */
+    function selfMint() external nonReentrant {
+        if (_hasMembership[msg.sender]) revert AlreadyHasMembership(msg.sender);
+        if (_revoked[msg.sender]) revert MembershipAlreadyRevoked(msg.sender);
+
+        _hasMembership[msg.sender] = true;
+        _membershipType[msg.sender] = STANDARD_MEMBER;
+        totalMembers++;
+
+        _mint(msg.sender, STANDARD_MEMBER, 1, "");
+
+        emit MembershipMinted(msg.sender, STANDARD_MEMBER);
+    }
+
+    /**
      * @notice Batch mint memberships to multiple addresses.
      * @param tos Array of addresses.
      * @param memberTypes Array of member types (same length as tos).
