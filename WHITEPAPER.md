@@ -3,7 +3,7 @@
 ### *Dissent Stay Decent & Decentralize*
 
 **Version 1.0 | 2026**
-**freedam.io | @FREEDAM_DAO**
+**freedamdao.org | @FREEDAMDAO**
 
 ---
 
@@ -198,7 +198,7 @@ ERC-1155 handles multiple token types (credential, role badge, XP tier) within a
 
 ### Q1–Q2 2026 — Foundation
 - [ ] Deploy ERC-1155 FRDM-ID membership token
-- [ ] Launch freedam.io website + open GitHub repo
+- [ ] Launch freedamdao.org website + open GitHub repo
 - [ ] Publish whitepaper + social media launch
 - [ ] Discord community + Snapshot governance setup
 
@@ -329,11 +329,11 @@ FREEDAM is that discipline, encoded in open-source software, governed by its mem
 
 **You don't need permission to join a movement.**
 
-- 🌐 **Website:** freedam.io
-- 🏛️ **Mint FRDM-ID:** freedam.io/mint *(Q1 2026)*
+- 🌐 **Website:** freedamdao.org
+- 🏛️ **Mint FRDM-ID:** freedamdao.org/mint *(Q1 2026)*
 - 🗳️ **Vote:** [snapshot.org/#/freedam.eth](https://snapshot.org/#/freedam.eth)
 - 💬 **Discord:** discord.gg/freedam
-- 🐦 **Twitter/X:** [@FREEDAM_DAO](https://x.com/FREEDAM_DAO)
+- 🐦 **Twitter/X:** [@FREEDAMDAO](https://x.com/FREEDAMDAO)
 - 📜 **GitHub:** github.com/FREEDAM-DAO
 - 📬 **Substack:** freedam.substack.com
 
