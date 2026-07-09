@@ -3,6 +3,7 @@
 ### *Dissent Stay Decent & Decentralize*
 
 **Version 1.0 | 2026**
+
 **freedamdao.org | @FREEDAMDAO**
 
 ---
