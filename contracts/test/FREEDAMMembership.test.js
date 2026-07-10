@@ -68,7 +68,7 @@ describe("FREEDAMMembership", function () {
       const addrs = [addr1.address, addr2.address];
       const types = [0];
       await expect(contract.batchMintMemberships(addrs, types))
-        .to.be.revertedWithCustomError(contract, "InvalidMemberType");
+        .to.be.revertedWithCustomError(contract, "ArrayLengthMismatch");
     });
     it("Should revert on duplicate in batch", async function () {
       const addrs = [addr1.address, addr1.address];
@@ -78,19 +78,19 @@ describe("FREEDAMMembership", function () {
     });
   });
 
-  // ===== Permissionless Self-Mint =====
-  describe("Self-Mint (Permissionless)", function () {
+  // ===== Self-Mint (Permissionless) =====
+  describe("Self-Mint (Open Mode)", function () {
     it("Should allow anyone to self-mint a standard membership", async function () {
-      await contract.connect(addr1).selfMint();
+      await contract.connect(addr1).selfMint([]);
       expect(await contract.hasMembership(addr1.address)).to.be.true;
       expect(await contract.getMembershipType(addr1.address)).to.equal(1);
       expect(await contract.totalMembers()).to.equal(1);
     });
 
     it("Should allow multiple users to self-mint independently", async function () {
-      await contract.connect(addr1).selfMint();
-      await contract.connect(addr2).selfMint();
-      await contract.connect(addr3).selfMint();
+      await contract.connect(addr1).selfMint([]);
+      await contract.connect(addr2).selfMint([]);
+      await contract.connect(addr3).selfMint([]);
       expect(await contract.totalMembers()).to.equal(3);
       expect(await contract.getMembershipType(addr1.address)).to.equal(1);
       expect(await contract.getMembershipType(addr2.address)).to.equal(1);
@@ -99,29 +99,71 @@ describe("FREEDAMMembership", function () {
 
     it("Should revert if already has membership (self-mint after owner mint)", async function () {
       await contract.mintMembership(addr1.address, 0); // owner mints founding
-      await expect(contract.connect(addr1).selfMint())
+      await expect(contract.connect(addr1).selfMint([]))
         .to.be.revertedWithCustomError(contract, "AlreadyHasMembership");
     });
 
     it("Should revert if self-minting twice", async function () {
-      await contract.connect(addr1).selfMint();
-      await expect(contract.connect(addr1).selfMint())
+      await contract.connect(addr1).selfMint([]);
+      await expect(contract.connect(addr1).selfMint([]))
         .to.be.revertedWithCustomError(contract, "AlreadyHasMembership");
     });
 
     it("Should revert if self-minting after revocation", async function () {
       await contract.mintMembership(addr1.address, 1);
       await contract.revokeMembership(addr1.address);
-      await expect(contract.connect(addr1).selfMint())
+      await expect(contract.connect(addr1).selfMint([]))
         .to.be.revertedWithCustomError(contract, "MembershipAlreadyRevoked");
     });
 
     it("Self-mint should NOT grant founding or delegate membership", async function () {
-      await contract.connect(addr1).selfMint();
+      await contract.connect(addr1).selfMint([]);
       const memberType = await contract.getMembershipType(addr1.address);
       expect(memberType).to.equal(1); // STANDARD_MEMBER only
       expect(memberType).to.not.equal(0); // not FOUNDING_MEMBER
       expect(memberType).to.not.equal(2); // not DELEGATE
+    });
+  });
+
+  // ===== Self-Mint (Allowlist Mode) =====
+  describe("Self-Mint (Allowlist Mode)", function () {
+    it("Should revert with no proof when root is set", async function () {
+      // Set a dummy non-zero root
+      await contract.setMerkleRoot(ethers.keccak256("0x1234"));
+      await expect(contract.connect(addr1).selfMint([]))
+        .to.be.revertedWithCustomError(contract, "NotAllowlisted");
+    });
+
+    it("Should allow minting with valid proof", async function () {
+      // Build a merkle tree with addr1
+      const leaf = ethers.keccak256(ethers.solidityPacked(["address"], [addr1.address]));
+      const root = leaf; // single-leaf tree, root = leaf
+      await contract.setMerkleRoot(root);
+
+      await contract.connect(addr1).selfMint([]); // proof is empty — single leaf has no siblings
+      expect(await contract.hasMembership(addr1.address)).to.be.true;
+    });
+
+    it("Should revert with invalid proof", async function () {
+      // Root allows addr1, addr2 tries to mint
+      const leaf = ethers.keccak256(ethers.solidityPacked(["address"], [addr1.address]));
+      const root = leaf;
+      await contract.setMerkleRoot(root);
+
+      await expect(contract.connect(addr2).selfMint([]))
+        .to.be.revertedWithCustomError(contract, "NotAllowlisted");
+    });
+
+    it("Should revert to open mode when root set to zero", async function () {
+      await contract.setMerkleRoot(ethers.keccak256("0x1234"));
+      await contract.setMerkleRoot(ethers.ZeroHash);
+      await contract.connect(addr1).selfMint([]);
+      expect(await contract.hasMembership(addr1.address)).to.be.true;
+    });
+
+    it("Should revert if non-owner sets merkle root", async function () {
+      await expect(contract.connect(addr1).setMerkleRoot(ethers.ZeroHash))
+        .to.be.revertedWith("Ownable: caller is not the owner");
     });
   });
 
@@ -175,7 +217,7 @@ describe("FREEDAMMembership", function () {
     });
     it("Should revert on getMembershipType for non-member", async function () {
       await expect(contract.getMembershipType(addr1.address))
-        .to.be.revertedWith("No membership");
+        .to.be.revertedWithCustomError(contract, "NoMembership");
     });
     it("Should return false for isRevoked on fresh address", async function () {
       expect(await contract.isRevoked(addr1.address)).to.be.false;
