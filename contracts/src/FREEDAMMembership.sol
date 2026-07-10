@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 /**
  * @title FREEDAM Membership Token (FRDM-ID)
@@ -17,7 +17,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
  * Members are minted one membership token that cannot be transferred.
  * The DAO owner (multisig/governance) can mint and revoke memberships.
  */
-contract FREEDAMMembership is ERC1155, Ownable, ReentrancyGuard {
+contract FREEDAMMembership is ERC1155, Ownable {
 
     // Token type IDs
     uint256 public constant FOUNDING_MEMBER = 0;
@@ -36,16 +36,22 @@ contract FREEDAMMembership is ERC1155, Ownable, ReentrancyGuard {
     // Revoked members (cannot re-mint)
     mapping(address => bool) private _revoked;
 
+    // Allowlist merkle root (zero = open minting)
+    bytes32 public merkleRoot;
+
     // ============ Events ============
     event MembershipMinted(address indexed member, uint256 memberType);
     event MembershipRevoked(address indexed member);
     event MetadataURIUpdated(string newURI);
+    event MerkleRootUpdated(bytes32 newRoot);
 
     // ============ Errors ============
     error AlreadyHasMembership(address member);
     error MembershipAlreadyRevoked(address member);
     error NoMembership(address member);
     error InvalidMemberType(uint256 memberType);
+    error ArrayLengthMismatch();
+    error NotAllowlisted(address member);
     error Soulbound__CannotTransfer();
 
     // ============ Constructor ============
@@ -85,7 +91,6 @@ contract FREEDAMMembership is ERC1155, Ownable, ReentrancyGuard {
     function mintMembership(address to, uint256 memberType)
         external
         onlyOwner
-        nonReentrant
     {
         if (_hasMembership[to]) revert AlreadyHasMembership(to);
         if (_revoked[to]) revert MembershipAlreadyRevoked(to);
@@ -101,14 +106,20 @@ contract FREEDAMMembership is ERC1155, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @notice Permissionless self-mint of a standard membership.
-     * @dev Anyone can call this to mint a STANDARD_MEMBER (type 1) token to themselves.
+     * @notice Self-mint a standard membership.
+     * @dev If merkleRoot is set, caller must provide a valid proof.
+     *      If merkleRoot is zero, anyone can mint (open mode).
      *      Founding and delegate memberships remain owner-controlled via mintMembership().
-     *      This is what makes FRDM-ID "permissionless" — no gatekeeper needed to join.
      */
-    function selfMint() external nonReentrant {
+    function selfMint(bytes32[] calldata proof) external {
         if (_hasMembership[msg.sender]) revert AlreadyHasMembership(msg.sender);
         if (_revoked[msg.sender]) revert MembershipAlreadyRevoked(msg.sender);
+
+        // ponytail: zero root = open minting, upgrade to on-chain registry if prove-and-revoke needed
+        if (merkleRoot != bytes32(0)) {
+            if (!MerkleProof.verify(proof, merkleRoot, keccak256(abi.encodePacked(msg.sender))))
+                revert NotAllowlisted(msg.sender);
+        }
 
         _hasMembership[msg.sender] = true;
         _membershipType[msg.sender] = STANDARD_MEMBER;
@@ -127,9 +138,8 @@ contract FREEDAMMembership is ERC1155, Ownable, ReentrancyGuard {
     function batchMintMemberships(address[] calldata tos, uint256[] calldata memberTypes)
         external
         onlyOwner
-        nonReentrant
     {
-        if (tos.length != memberTypes.length) revert InvalidMemberType(999);
+        if (tos.length != memberTypes.length) revert ArrayLengthMismatch();
 
         for (uint256 i = 0; i < tos.length; i++) {
             address to = tos[i];
@@ -157,7 +167,6 @@ contract FREEDAMMembership is ERC1155, Ownable, ReentrancyGuard {
     function revokeMembership(address member)
         external
         onlyOwner
-        nonReentrant
     {
         if (!_hasMembership[member]) revert NoMembership(member);
 
@@ -167,7 +176,7 @@ contract FREEDAMMembership is ERC1155, Ownable, ReentrancyGuard {
 
         _hasMembership[member] = false;
         _revoked[member] = true;
-        _membershipType[member] = 0;
+        _membershipType[member] = type(uint256).max; // sentinel: revoked
         totalMembers--;
 
         emit MembershipRevoked(member);
@@ -185,7 +194,7 @@ contract FREEDAMMembership is ERC1155, Ownable, ReentrancyGuard {
      * @notice Get the membership type of an address.
      */
     function getMembershipType(address account) external view returns (uint256) {
-        require(_hasMembership[account], "No membership");
+        if (!_hasMembership[account]) revert NoMembership(account);
         return _membershipType[account];
     }
 
@@ -194,6 +203,16 @@ contract FREEDAMMembership is ERC1155, Ownable, ReentrancyGuard {
      */
     function isRevoked(address account) external view returns (bool) {
         return _revoked[account];
+    }
+
+    // ============ Allowlist ============
+    /**
+     * @notice Set the merkle root for self-mint allowlist.
+     * @dev Set to bytes32(0) to disable allowlist (open minting).
+     */
+    function setMerkleRoot(bytes32 root) external onlyOwner {
+        merkleRoot = root;
+        emit MerkleRootUpdated(root);
     }
 
     // ============ Metadata ============

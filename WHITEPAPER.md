@@ -322,8 +322,8 @@ FREEDAM is that discipline, encoded in open-source software, governed by its mem
 
 - 🌐 **Website:** freedamdao.org
 - 🏛️ **Mint FRDM-ID:** freedamdao.org/mint *(Q1 2026)*
-- 🗳️ **Vote:** [snapshot.org/#/freedam.eth](https://snapshot.org/#/freedam.eth)
-- 💬 **Discord:** discord.gg/freedam
+- 🗳️ **Vote:** *(coming soon)*
+- 💬 **Discord:** *(coming soon)*
 - 🐦 **Twitter/X:** [@FREEDAMDAO](https://x.com/FREEDAMDAO)
 - 📜 **GitHub:** github.com/FREEDAM-DAO
 - 📬 **Substack:** freedam.substack.com

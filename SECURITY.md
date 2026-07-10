@@ -46,7 +46,7 @@ In return, FREEDAM commits to:
 
 ## Known Limitations
 
-- Smart contracts are not yet audited. Audit is planned before mainnet deployment. See [docs/TOKEN_SPEC.md](docs/TOKEN_SPEC.md) for audit status.
+- Smart contracts are not yet audited. Audit is planned before mainnet deployment.
 - Snapshot voting is off-chain. The security model relies on Snapshot's infrastructure; FREEDAM maintains fallback governance procedures in the event of Snapshot unavailability.
 - The XP attestation system relies on multi-sig authorization. Compromise of the Gamification Working Group multisig would allow fraudulent XP issuance — this is mitigated by the quadratic formula, which limits the impact of any single address's XP balance.
 

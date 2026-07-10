@@ -4,7 +4,7 @@
 > *Dissent Stay Decent & Decentralize*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Governance: Snapshot](https://img.shields.io/badge/Governance-Snapshot-purple)](https://snapshot.org/#/freedam.eth)
+[![Governance: Coming Soon](https://img.shields.io/badge/Governance-Coming%20Soon-purple)]
 [![Twitter Follow](https://img.shields.io/twitter/follow/FREEDAMDAO?style=social)](https://x.com/FREEDAMDAO)
 
 ---
@@ -22,10 +22,10 @@ We believe the best way to build it is to **start small, ship fast, and iterate 
 ```
 freedam-dao/
 ├── contracts/              # Solidity smart contracts (Hardhat)
-├── frontend/               # Next.js web interface
 ├── governance/             # Governance framework & templates
 ├── community/              # Code of conduct, contributing guide, charter
-├── docs/                   # Technical documentation
+├── docs/                   # Technical documentation + landing page
+├── scripts/                # Deployment scripts
 ├── WHITEPAPER.md           # Full project vision
 ├── SECURITY.md
 └── LICENSE
@@ -72,8 +72,8 @@ These will be added later based on community input.
 | Governance Docs   | [governance/](governance/)                |
 | Security          | [SECURITY.md](SECURITY.md)                |
 | Mint FRDM-ID      | Coming soon — freedamdao.org/mint         |
-| Vote              | [snapshot.org/#/freedam.eth](https://snapshot.org/#/freedam.eth) |
-| Discord           | [discord.gg/freedam](https://discord.gg/freedam) |
+| Vote              | *Coming soon* |
+| Discord           | *Coming soon* |
 | X / Twitter       | [@FREEDAMDAO](https://x.com/FREEDAMDAO) |
 
 ---
@@ -82,25 +82,18 @@ These will be added later based on community input.
 
 ### For Members
 1. Read the [Whitepaper](WHITEPAPER.md)
-2. Join the [Discord](https://discord.gg/freedam)
+2. Join the Discord *(coming soon)*
 3. Mint your FRDM-ID (when available)
 4. Participate in proposals
 
 ### For Developers
 ```bash
-git clone https://github.com/FREEDAM-DAO/freedam-dao
-cd freedam-dao
+git clone https://github.com/FREEDAM-DAO/DAOv.01
+cd DAOv.01
 
-# Contracts
-cd contracts
 npm install
 npx hardhat compile
 npx hardhat test
-
-# Frontend
-cd ../frontend
-npm install
-npm run dev
 ```
 
 See [docs/](docs/) for architecture and technical details.
