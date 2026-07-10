@@ -145,13 +145,13 @@ Any FRDM-ID holder may nominate a Representative — an individual authorized to
 | Smart Contracts | Solidity / OpenZeppelin; audited before mainnet deployment |
 | Data Layer | The Graph — queryable governance events + proposal history |
 | Frontend | Next.js dApp + governance dashboard; open-source on GitHub |
-| Primary Chain | Ethereum mainnet (Phase 1) |
+| Primary Chain | Optimism (L2) — EVM-compatible, low gas, Ethereum-secured |
 | BTC Integration | Rootstock (RSK) L2 — EVM-compatible, BTC-anchored security |
 | Community | Discord, X, Substack, YouTube |
 | Identity | ERC-1155 soulbound token as permissionless civic credential |
 
-### 5.1 Why Ethereum (Phase 1)?
-Ethereum provides the largest DAO tooling ecosystem, the most audited smart contract standards, and the broadest developer community. Snapshot's gasless voting eliminates cost barriers for participation.
+### 5.1 Why Optimism (Phase 1)?
+Optimism is an EVM-compatible Layer 2 secured by Ethereum. It provides the same DAO tooling ecosystem, audited smart contract standards, and developer community as mainnet — at ~10-100x lower gas costs. This matters for a civic governance DAO where members shouldn't pay meaningful fees to participate. Snapshot's gasless voting eliminates cost barriers entirely for voting; Optimism keeps minting and on-chain interactions affordable.
 
 ### 5.2 Bitcoin L2 Strategy: Rootstock (RSK)
 Rather than Lightning Network (insufficient DAO tooling today), FREEDAM will explore Rootstock (RSK) — an EVM-compatible Bitcoin sidechain secured by merged mining — for Phase 2 expansion.
