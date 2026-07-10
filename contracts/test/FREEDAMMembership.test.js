@@ -70,6 +70,10 @@ describe("FREEDAMMembership", function () {
       await expect(contract.batchMintMemberships(addrs, types))
         .to.be.revertedWithCustomError(contract, "ArrayLengthMismatch");
     });
+    it("Should revert on empty arrays", async function () {
+      await expect(contract.batchMintMemberships([], []))
+        .to.be.revertedWithCustomError(contract, "ArrayLengthMismatch");
+    });
     it("Should revert on duplicate in batch", async function () {
       const addrs = [addr1.address, addr1.address];
       const types = [0, 1];
@@ -195,6 +199,12 @@ describe("FREEDAMMembership", function () {
     it("Should revert if revoking non-member", async function () {
       await expect(contract.revokeMembership(addr1.address))
         .to.be.revertedWithCustomError(contract, "NoMembership");
+    });
+    it("Should not underflow totalMembers when revoking last member", async function () {
+      await contract.mintMembership(addr1.address, 1);
+      expect(await contract.totalMembers()).to.equal(1);
+      await contract.revokeMembership(addr1.address);
+      expect(await contract.totalMembers()).to.equal(0); // 0.8.x reverts on underflow, this confirms no wrap
     });
     it("Should prevent re-minting after revocation", async function () {
       await contract.mintMembership(addr1.address, 1);

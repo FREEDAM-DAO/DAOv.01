@@ -140,6 +140,7 @@ contract FREEDAMMembership is ERC1155, Ownable {
         onlyOwner
     {
         if (tos.length != memberTypes.length) revert ArrayLengthMismatch();
+        if (tos.length == 0) revert ArrayLengthMismatch(); // ponytail: reuse existing error, empty batch is a no-op
 
         for (uint256 i = 0; i < tos.length; i++) {
             address to = tos[i];

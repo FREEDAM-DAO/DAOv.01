@@ -51,16 +51,17 @@ This repository contains the **minimum viable version** of FREEDAM. We’ve inte
 - Learn what actually works before adding complexity
 
 **Included now:**
-- Soulbound membership token
-- Basic proposal creation and voting system
-- Clean, readable code
+- Soulbound membership token (ERC-1155)
+- Permissionless self-mint with allowlist support
+- Batch minting and revocation
 
 **Not included yet (by design):**
-- Rewards or token incentives
+- Rewards or token incentives (FRDM ERC-20)
 - Advanced identity features
-- Complex voting mechanics
+- Complex voting mechanics (quadratic voting, Snapshot)
+- Treasury management (Gnosis Safe multisig)
 
-These will be added later based on community input.
+See [docs/MVP_SCOPE.md](docs/MVP_SCOPE.md) for the full breakdown of what's built vs. planned.
 
 ---
 
