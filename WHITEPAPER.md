@@ -147,7 +147,7 @@ Any FRDM-ID holder may nominate a Representative — an individual authorized to
 | Frontend | Next.js dApp + governance dashboard; open-source on GitHub |
 | Primary Chain | Ethereum mainnet (Phase 1) |
 | BTC Integration | Rootstock (RSK) L2 — EVM-compatible, BTC-anchored security |
-| Community | Discord, X, Substack, TikTok, YouTube |
+| Community | Discord, X, Substack, YouTube |
 | Identity | ERC-1155 soulbound token as permissionless civic credential |
 
 ### 5.1 Why Ethereum (Phase 1)?
@@ -179,16 +179,16 @@ FRDM is participation-mined. Earning mechanics:
 
 | Activity | FRDM Earned |
 |---|---|
-| Proposal submission + passage | +100 FRDM |
-| Voting participation per proposal | +10 FRDM |
+| Proposal submission + passage | +10 FRDM |
+| Voting participation per proposal | +1 FRDM |
 | Working group contribution (verified) | Variable |
-| IRL event attendance (POAP-verified) | +50 FRDM |
-| Verified member referral | +25 FRDM |
+| IRL event attendance (POAP-verified) | +25 FRDM |
+| Verified member referral | +15 FRDM |
 
 There is no maximum supply cap. Issuance is tied to verifiable participation. The DAO may vote to adjust emission rates through the standard proposal process.
 
 ### 6.3 Why ERC-1155 Over ERC-721?
-ERC-1155 handles multiple token types (credential, role badge, XP tier) within a single contract. This reduces gas costs and simplifies governance logic. ERC-4337 (account abstraction) and EIP-5114 (soulbound) were evaluated; ERC-1155 provides the best balance of tooling maturity, auditability, and flexibility for launch phase.
+ERC-1155 handles multiple token types (credential, role badge, XP tier) within a single contract. This reduces gas costs and simplifies governance logic. ERC-4337 (account abstraction) and EIP-5114 (soulbound) should be evaluated by the community before launch; ERC-1155 provides the best balance of tooling maturity, auditability, and flexibility pre-launch phase.
 
 ---
 
@@ -199,8 +199,8 @@ ERC-1155 handles multiple token types (credential, role badge, XP tier) within a
 
 ### Q1–Q2 2026 — Foundation
 - [ ] Deploy ERC-1155 FRDM-ID membership token
-- [ ] Launch freedamdao.org website + open GitHub repo
-- [ ] Publish whitepaper + social media launch
+- [x] Launch freedamdao.org website + open GitHub repo
+- [x] Publish whitepaper + social media launch
 - [ ] Discord community + Snapshot governance setup
 
 ### Q3–Q4 2026 — Activation
@@ -223,19 +223,11 @@ ERC-1155 handles multiple token types (credential, role badge, XP tier) within a
 
 ---
 
-## 8. Funding Allocation
-
-Initial funding of **$34,000** (sought via Gitcoin Grants and community fundraising). All spending governed by DAO treasury and reported on-chain.
-
-| Category | Deliverable | Budget |
-|---|---|---|
-| DAO Tooling Infrastructure | Governance contracts, Snapshot integration | $7,000 |
-| Smart Contract Development | ERC-1155 membership + ERC-20 FRDM token | $10,000 |
-| Educational Onboarding | Wallet UX, tutorials, multilingual guides | $5,000 |
-| Website & Community Portal | dApp frontend, governance dashboard, GitHub | $5,000 |
-| Social & Growth Campaigns | Content bounties, meme campaigns, Coordinape | $4,000 |
-| Legal Research & Formation | DAO incorporation, compliance research | $3,000 |
-| **Total** | | **$34,000** |
+## 8. Financal
+Mixed Income for a non-profit:
+= Grants
+- Donations
+- XP Fees
 
 **Financial principles:**
 - No VC funding — preserves independence and non-partisan status
@@ -243,12 +235,10 @@ Initial funding of **$34,000** (sought via Gitcoin Grants and community fundrais
 - All expenditures publicly documented on-chain via Gnosis Safe
 - Future revenue via optional premium membership tiers and ecosystem grants (never mandatory)
 
----
-
 ## 9. Legal & Compliance Framework
 
 ### 9.1 Legal Wrapper Options
-FREEDAM is evaluating the following structures in consultation with LexDAO and OpenLaw frameworks:
+FREEDAM is evaluating the following structures in consultation with it's community:
 
 - **Wyoming DAO LLC** — provides legal personhood; currently the most DAO-native U.S. option
 - **Delaware Non-Profit Corporation** — suitable if FREEDAM pursues 501(c)(4) social welfare status
@@ -257,7 +247,7 @@ FREEDAM is evaluating the following structures in consultation with LexDAO and O
 The DAO community will vote on legal structure as a first-order governance action post-launch.
 
 ### 9.2 Political Activity Constraints
-FREEDAM is explicitly non-partisan at the protocol level. The DAO does not endorse candidates, donate to campaigns, or coordinate with political parties. Proposals that constitute illegal campaign contributions or partisan coordination will be rejected and flagged for legal review.
+FREEDAM is explicitly non-partisan at the protocol level. The DAO does not endorse candidates, donate to campaigns, or coordinate with political parties. Proposals that constitute illegal campaign contributions will be rejected and flagged for legal review.
 
 ### 9.3 Token Classification
 FRDM-ID and FRDM are designed as utility/governance tokens, not securities. FRDM has no presale, no promise of profit, and no investment contract — factors central to Howey Test analysis. A legal opinion on token classification will be obtained before any secondary market activity is contemplated.
@@ -296,14 +286,14 @@ FRDM-ID and FRDM are designed as utility/governance tokens, not securities. FRDM
 | Risk | Mitigation |
 |---|---|
 | Smart contract vulnerabilities | OpenZeppelin standards + pre-launch audits |
-| Snapshot / Tally service dependency | Open-source fallback governance procedures |
+| Snapshot / Tally service dependency | Open-source toolkit for governance procedures |
 | Gnosis Safe key management | Geographically distributed, identity-verified signers |
 
 ### Governance Risks
 | Risk | Mitigation |
 |---|---|
 | Low participation / quorum failure | Accessible onboarding + gasless voting |
-| Sybil attacks | Soulbound FRDM-ID + identity verification in Phase 2 |
+| Sybil attacks | Soulbound FRDM-ID + pseudo-identity verification in Phase 2 |
 | Governance capture by coordinated faction | Quadratic voting + XP-weighted reputation |
 
 ### Legal Risks
