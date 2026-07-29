@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mint FRDM-ID — Coming Soon | FREEDAM DAO</title>
+  <meta name="description" content="FRDM-ID testnet mint is not live yet. Join FREEDAM while we ship the membership flow.">
+  <meta property="og:title" content="Mint FRDM-ID — Coming Soon | FREEDAM DAO">
+  <meta property="og:description" content="Testnet mint ships soon. Not mainnet. Not a token sale. Build with us in the meantime.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.freedamdao.org/mint">
+  <meta name="robots" content="index,follow">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --accent: #6c5ce7;
+      --accent-bright: #a29bfe;
+      --text: #e8e8f0;
+      --text-dim: #8a8a9a;
+      --border: #1e1e2e;
+      --green: #00b894;
+      --amber: #fdcb6e;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .container { max-width: 640px; margin: 0 auto; padding: 0 24px; }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      max-width: 760px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .logo {
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .logo span { color: var(--accent-bright); }
+    .nav-links { display: flex; gap: 20px; }
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 48px 0 64px;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(253, 203, 110, 0.12);
+      color: var(--amber);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    h1 .gradient {
+      background: linear-gradient(135deg, var(--accent-bright), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .lead {
+      color: var(--text-dim);
+      font-size: 1.05rem;
+      margin-bottom: 28px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+    }
+    .card h2 {
+      font-size: 1rem;
+      margin-bottom: 12px;
+    }
+    .card p, .card li {
+      color: var(--text-dim);
+      font-size: 0.95rem;
+    }
+    .card ul {
+      margin: 0 0 0 1.1rem;
+    }
+    .card li { margin-bottom: 8px; }
+    .card li strong { color: var(--text); font-weight: 600; }
+
+    .banner {
+      border-color: rgba(108, 92, 231, 0.35);
+      background: rgba(108, 92, 231, 0.08);
+    }
+    .banner p {
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    .banner p + p { margin-top: 10px; color: var(--text-dim); }
+
+    .cta-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 22px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: transform 0.15s, opacity 0.2s, border-color 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--accent); }
+
+    .meta {
+      margin-top: 28px;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+    .meta a { color: var(--accent-bright); }
+
+    footer {
+      padding: 28px 24px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+    footer p {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="logo" href="/">FREEDAM<span>.</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="https://github.com/FREEDAM-DAO/DAOv.01">GitHub</a>
+      <a href="https://x.com/FREEDAMDAO">X</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container">
+      <div class="status">● Not live yet — testnet mint in progress</div>
+      <h1>Mint <span class="gradient">FRDM-ID</span></h1>
+      <p class="lead">
+        The membership mint page is not active yet. This is an honest placeholder
+        so <code>/mint</code> is not a dead 404 while we finish the join loop.
+      </p>
+
+      <div class="card banner">
+        <p><strong>Testnet MVP — not mainnet, not a token sale.</strong></p>
+        <p>
+          FRDM-ID will be a free soulbound membership credential on
+          <strong>Optimism Sepolia</strong> for practice governance. When mint
+          ships, you’ll connect a wallet, call <code>selfMint()</code>, and get a member number.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>What works today</h2>
+        <ul>
+          <li><strong>Read the project</strong> — public repo, whitepaper, constitution</li>
+          <li><strong>Volunteer</strong> — builder intake form on the home page</li>
+          <li><strong>Community</strong> — FREEDAM on Buzz (join loop next; invite/links on home &amp; GitHub as they ship)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>What’s next for mint</h2>
+        <ul>
+          <li>Deploy &amp; verify FRDM-ID on Optimism Sepolia</li>
+          <li>Ship connect-wallet → mint UI on this URL</li>
+          <li>Wire Snapshot voting to holders</li>
+        </ul>
+      </div>
+
+      <div class="cta-group">
+        <a class="btn btn-primary" href="https://github.com/FREEDAM-DAO/DAOv.01">View open source</a>
+        <a class="btn btn-secondary" href="https://github.com/FREEDAM-DAO/DAOv.01/blob/main/WHITEPAPER.md">Read whitepaper</a>
+        <a class="btn btn-secondary" href="https://docs.google.com/forms/d/e/1FAIpQLScyCh872PXzc6pIMslrf3JBK7I7eTdBwM28fLE6URCz8ygbKQ/viewform">Volunteer</a>
+        <a class="btn btn-secondary" href="/">← Back home</a>
+      </div>
+
+      <p class="meta">
+        Track progress:
+        <a href="https://github.com/FREEDAM-DAO/DAOv.01">github.com/FREEDAM-DAO/DAOv.01</a>
+        · build in public @ <a href="https://x.com/FREEDAMDAO">FREEDAMDAO</a>
+      </p>
+    </div>
+  </main>
+
+  <footer>
+    <p>FREEDAM DAO — open source under MIT · No presale · No VC allocation · No founder reserve</p>
+  </footer>
+</body>
+</html>
