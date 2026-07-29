@@ -72,7 +72,7 @@ See [docs/MVP_SCOPE.md](docs/MVP_SCOPE.md) for the full breakdown of what's buil
 | Whitepaper        | [WHITEPAPER.md](WHITEPAPER.md)            |
 | Governance Docs   | [governance/](governance/)                |
 | Security          | [SECURITY.md](SECURITY.md)                |
-| Mint FRDM-ID      | Coming soon — freedamdao.org/mint         |
+| Mint FRDM-ID      | [Status page](https://www.freedamdao.org/mint) — wallet mint not live yet |
 | Vote              | *Coming soon* |
 | Discord           | *Coming soon* |
 | X / Twitter       | [@FREEDAMDAO](https://x.com/FREEDAMDAO) |
