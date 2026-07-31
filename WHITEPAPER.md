@@ -223,7 +223,7 @@ ERC-1155 handles multiple token types (credential, role badge, XP tier) within a
 
 ---
 
-## 8. Financal
+## 8. Financial
 Mixed Income for a non-profit:
 = Grants
 - Donations
@@ -321,7 +321,7 @@ FREEDAM is that discipline, encoded in open-source software, governed by its mem
 **You don't need permission to join a movement.**
 
 - 🌐 **Website:** freedamdao.org
-- 🏛️ **Mint FRDM-ID:** freedamdao.org/mint *(Q1 2026)*
+- 🏛️ **Mint FRDM-ID:** freedamdao.org/mint *(Q3 2026)*
 - 🗳️ **Vote:** *(coming soon)*
 - 💬 **Discord:** *(coming soon)*
 - 🐦 **Twitter/X:** [@FREEDAMDAO](https://x.com/FREEDAMDAO)
