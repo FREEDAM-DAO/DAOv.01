@@ -24,9 +24,9 @@ freedam-dao/
 ├── contracts/              # Solidity smart contracts (Hardhat)
 ├── governance/             # Governance framework & templates
 ├── community/              # Code of conduct, contributing guide, charter
-├── docs/                   # Technical documentation + landing page
 ├── scripts/                # Deployment scripts
 ├── WHITEPAPER.md           # Full project vision
+├── CONSTITUTION.md
 ├── SECURITY.md
 └── LICENSE
 ```
@@ -61,8 +61,6 @@ This repository contains the **minimum viable version** of FREEDAM. We’ve inte
 - Complex voting mechanics (quadratic voting, Snapshot)
 - Treasury management (Gnosis Safe multisig)
 
-See [docs/MVP_SCOPE.md](docs/MVP_SCOPE.md) for the full breakdown of what's built vs. planned.
-
 ---
 
 ## Quick Links
@@ -96,8 +94,6 @@ npm install
 npx hardhat compile
 npx hardhat test
 ```
-
-See [docs/](docs/) for architecture and technical details.
 
 ---
 
