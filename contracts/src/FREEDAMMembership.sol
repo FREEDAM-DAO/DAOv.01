@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
  * @title FREEDAM Membership Token (FRDM-ID)
@@ -17,7 +18,7 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
  * Members are minted one membership token that cannot be transferred.
  * The DAO owner (multisig/governance) can mint and revoke memberships.
  */
-contract FREEDAMMembership is ERC1155, Ownable {
+contract FREEDAMMembership is ERC1155, Ownable, Pausable {
 
     // Token type IDs
     uint256 public constant FOUNDING_MEMBER = 0;
@@ -91,6 +92,7 @@ contract FREEDAMMembership is ERC1155, Ownable {
     function mintMembership(address to, uint256 memberType)
         external
         onlyOwner
+        whenNotPaused
     {
         if (_hasMembership[to]) revert AlreadyHasMembership(to);
         if (_revoked[to]) revert MembershipAlreadyRevoked(to);
@@ -111,13 +113,13 @@ contract FREEDAMMembership is ERC1155, Ownable {
      *      If merkleRoot is zero, anyone can mint (open mode).
      *      Founding and delegate memberships remain owner-controlled via mintMembership().
      */
-    function selfMint(bytes32[] calldata proof) external {
+    function selfMint(bytes32[] calldata proof) external whenNotPaused {
         if (_hasMembership[msg.sender]) revert AlreadyHasMembership(msg.sender);
         if (_revoked[msg.sender]) revert MembershipAlreadyRevoked(msg.sender);
 
         // ponytail: zero root = open minting, upgrade to on-chain registry if prove-and-revoke needed
         if (merkleRoot != bytes32(0)) {
-            if (!MerkleProof.verify(proof, merkleRoot, keccak256(abi.encodePacked(msg.sender))))
+            if (!MerkleProof.verify(proof, merkleRoot, keccak256(abi.encode(msg.sender))))
                 revert NotAllowlisted(msg.sender);
         }
 
@@ -138,6 +140,7 @@ contract FREEDAMMembership is ERC1155, Ownable {
     function batchMintMemberships(address[] calldata tos, uint256[] calldata memberTypes)
         external
         onlyOwner
+        whenNotPaused
     {
         if (tos.length != memberTypes.length) revert ArrayLengthMismatch();
         if (tos.length == 0) revert ArrayLengthMismatch(); // ponytail: reuse existing error, empty batch is a no-op
@@ -204,6 +207,22 @@ contract FREEDAMMembership is ERC1155, Ownable {
      */
     function isRevoked(address account) external view returns (bool) {
         return _revoked[account];
+    }
+
+    // ============ Pausable ============
+    /**
+     * @notice Pause all minting (emergency stop).
+     * @dev Only callable by owner. Revocation remains available during pause.
+     */
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /**
+     * @notice Unpause minting.
+     */
+    function unpause() external onlyOwner {
+        _unpause();
     }
 
     // ============ Allowlist ============

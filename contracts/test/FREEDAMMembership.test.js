@@ -139,9 +139,10 @@ describe("FREEDAMMembership", function () {
     });
 
     it("Should allow minting with valid proof", async function () {
-      // Build a merkle tree with addr1
-      const leaf = ethers.keccak256(ethers.solidityPacked(["address"], [addr1.address]));
-      const root = leaf; // single-leaf tree, root = leaf
+      // Build a merkle tree with addr1 using abi.encode (matching contract)
+      const leaf = ethers.AbiCoder.defaultAbiCoder().encode(["address"], [addr1.address]);
+      const leafHash = ethers.keccak256(leaf);
+      const root = leafHash; // single-leaf tree, root = leafHash
       await contract.setMerkleRoot(root);
 
       await contract.connect(addr1).selfMint([]); // proof is empty — single leaf has no siblings
@@ -150,8 +151,9 @@ describe("FREEDAMMembership", function () {
 
     it("Should revert with invalid proof", async function () {
       // Root allows addr1, addr2 tries to mint
-      const leaf = ethers.keccak256(ethers.solidityPacked(["address"], [addr1.address]));
-      const root = leaf;
+      const leaf = ethers.AbiCoder.defaultAbiCoder().encode(["address"], [addr1.address]);
+      const leafHash = ethers.keccak256(leaf);
+      const root = leafHash;
       await contract.setMerkleRoot(root);
 
       await expect(contract.connect(addr2).selfMint([]))

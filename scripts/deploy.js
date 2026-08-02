@@ -13,6 +13,20 @@ const hre = require("hardhat");
 async function main() {
   const [deployer] = await ethers.getSigners();
 
+  // Safety guard: require explicit confirmation for mainnet networks
+  const mainnetChainIds = [1, 10, 137, 42161, 56];
+  const chainId = hre.network.config.chainId;
+  if (mainnetChainIds.includes(chainId)) {
+    console.error("=".repeat(50));
+    console.error("  DANGER: This is a mainnet deployment (chainId: " + chainId + ")");
+    console.error("  Set DEPLOY_CONFIRM=yes in your environment to proceed.");
+    console.error("=".repeat(50));
+    if (process.env.DEPLOY_CONFIRM !== "yes") {
+      console.error("  Aborting. Export DEPLOY_CONFIRM=yes to override.");
+      process.exit(1);
+    }
+  }
+
   console.log("=".repeat(50));
   console.log("FREEDAM DAO — FRDM-ID Deployment");
   console.log("=".repeat(50));
