@@ -48,8 +48,9 @@ async function main() {
   console.log("  1. Save the contract address above");
   console.log("  2. Verify on block explorer:");
   console.log("     npx hardhat verify --network " + hre.network.name + " " + address + " " + deployer.address);
-  console.log("  3. Mint first membership:");
-  console.log("     Use the contract ABI to call mintMembership(addr, memberType)");
+  console.log("  3. Mint Founder membership:");
+  console.log("     npx hardhat console --network " + hre.network.name);
+  console.log("     > await contract.founderMint()");
 }
 
 main()

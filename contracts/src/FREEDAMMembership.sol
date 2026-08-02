@@ -9,64 +9,93 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
  * @title FREEDAM Membership Token (FRDM-ID)
  * @dev ERC-1155 soulbound (non-transferable) membership credential.
  *
- * Token IDs:
- *   0 = Founding Member
- *   1 = Standard Member
- *   2 = Delegate
+ * All members hold token ID 0 — the FRDM-ID credential itself.
+ * Member numbers are sequential (Founder = #1, next = #2, etc.)
+ * and stored on-chain alongside the membership tier.
  *
- * Members are minted one membership token that cannot be transferred.
- * The DAO owner (multisig/governance) can mint and revoke memberships.
+ * Tiers:
+ *   Founder — reserved for the DAO founder (minted by owner once)
+ *   Leader  — donated >= LEADER_THRESHOLD
+ *   Member  — donated >= MEMBER_MINIMUM
+ *
+ * Donations accumulate in the contract and are withdrawable by the owner.
  */
 contract FREEDAMMembership is ERC1155, Ownable {
 
-    // Token type IDs
-    uint256 public constant FOUNDING_MEMBER = 0;
-    uint256 public constant STANDARD_MEMBER = 1;
-    uint256 public constant DELEGATE = 2;
+    // ============ Types ============
 
-    // Track which token ID each address holds (one membership per address)
-    mapping(address => uint256) private _membershipType;
+    /// @notice Membership tier — determines governance weight / privileges.
+    enum Tier { Founder, Leader, Member }
 
-    // Track if an address has been minted a membership
+    // ============ Constants ============
+
+    /// @notice All members hold this single ERC-1155 token ID as their credential.
+    uint256 public constant FRDM_ID_TOKEN = 0;
+
+    /// @notice Donation threshold for Leader tier (testnet convention: ~$10 worth of Sepolia ETH).
+    uint256 public constant LEADER_THRESHOLD = 0.01 ether;
+
+    /// @notice Minimum donation to mint any membership (~$1 worth of Sepolia ETH).
+    uint256 public constant MEMBER_MINIMUM = 0.001 ether;
+
+    // ============ State ============
+
+    /// @notice Whether an address holds a membership.
     mapping(address => bool) private _hasMembership;
 
-    // Total member count
-    uint256 public totalMembers;
+    /// @notice Membership tier for each address.
+    mapping(address => Tier) private _tier;
 
-    // Revoked members (cannot re-mint)
+    /// @notice Sequential member number (1-based — Founder = 1, next mint = 2, etc.).
+    ///        0 means no membership.
+    mapping(address => uint256) private _memberNumber;
+
+    /// @notice Previously revoked members (cannot re-mint).
     mapping(address => bool) private _revoked;
 
-    // Allowlist merkle root (zero = open minting)
+    /// @notice Next member number to assign. Starts at 1 (reserved for Founder).
+    uint256 public nextMemberNumber;
+
+    /// @notice Total active members.
+    uint256 public totalMembers;
+
+    /// @notice Total ETH donations accumulated in the contract.
+    uint256 public totalDonations;
+
+    /// @notice Merkle root for self-mint allowlist. Zero root = open minting.
     bytes32 public merkleRoot;
 
     // ============ Events ============
-    event MembershipMinted(address indexed member, uint256 memberType);
-    event MembershipRevoked(address indexed member);
+
+    event MembershipMinted(address indexed member, uint256 memberNumber, Tier tier, uint256 donation);
+    event MembershipRevoked(address indexed member, uint256 memberNumber);
+    event DonationWithdrawn(address indexed to, uint256 amount);
     event MetadataURIUpdated(string newURI);
     event MerkleRootUpdated(bytes32 newRoot);
 
     // ============ Errors ============
+
     error AlreadyHasMembership(address member);
     error MembershipAlreadyRevoked(address member);
     error NoMembership(address member);
-    error InvalidMemberType(uint256 memberType);
-    error ArrayLengthMismatch();
+    error DonationTooLow(uint256 sent, uint256 minimum);
     error NotAllowlisted(address member);
     error Soulbound__CannotTransfer();
+    error NoDonationsToWithdraw();
 
     // ============ Constructor ============
+
     constructor(address initialOwner)
         ERC1155("")
         Ownable()
     {
         _transferOwnership(initialOwner);
+        // Member numbers start at 1 (reserved for Founder)
+        nextMemberNumber = 1;
     }
 
     // ============ Soulbound Enforcement ============
-    /**
-     * @dev Override _beforeTokenTransfer to block all transfers except minting and burning.
-     * This is what makes the token "soulbound".
-     */
+
     function _beforeTokenTransfer(
         address operator,
         address from,
@@ -75,115 +104,109 @@ contract FREEDAMMembership is ERC1155, Ownable {
         uint256[] memory amounts,
         bytes memory data
     ) internal override {
-        // Allow minting (from = address(0)) and burning (to = address(0))
+        // Allow minting (from == address(0)) and burning (to == address(0))
         if (from != address(0) && to != address(0)) {
             revert Soulbound__CannotTransfer();
         }
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
-    // ============ Minting ============
+    // ============ Founder Mint ============
+
     /**
-     * @notice Mint a membership token to an address.
-     * @param to Address receiving membership.
-     * @param memberType 0=Founding, 1=Standard, 2=Delegate.
+     * @notice Mint the Founder membership to the contract owner.
+     * @dev Only callable once. Founder always gets member number 1.
+     *      Call this immediately after deployment.
      */
-    function mintMembership(address to, uint256 memberType)
-        external
-        onlyOwner
-    {
-        if (_hasMembership[to]) revert AlreadyHasMembership(to);
-        if (_revoked[to]) revert MembershipAlreadyRevoked(to);
-        if (memberType > DELEGATE) revert InvalidMemberType(memberType);
+    function founderMint() external onlyOwner {
+        if (_hasMembership[msg.sender]) revert AlreadyHasMembership(msg.sender);
 
-        _hasMembership[to] = true;
-        _membershipType[to] = memberType;
+        uint256 number = nextMemberNumber; // should be 1 (first mint)
+        _hasMembership[msg.sender] = true;
+        _tier[msg.sender] = Tier.Founder;
+        _memberNumber[msg.sender] = number;
         totalMembers++;
+        nextMemberNumber++;
 
-        _mint(to, memberType, 1, "");
+        _mint(msg.sender, FRDM_ID_TOKEN, 1, "");
 
-        emit MembershipMinted(to, memberType);
+        emit MembershipMinted(msg.sender, number, Tier.Founder, 0);
     }
 
+    // ============ Payable Self-Mint ============
+
     /**
-     * @notice Self-mint a standard membership.
-     * @dev If merkleRoot is set, caller must provide a valid proof.
-     *      If merkleRoot is zero, anyone can mint (open mode).
-     *      Founding and delegate memberships remain owner-controlled via mintMembership().
+     * @notice Self-mint a membership with a donation.
+     * @dev Amount determines tier: >= LEADER_THRESHOLD → Leader, >= MEMBER_MINIMUM → Member.
+     *      Donation ETH accumulates in the contract for DAO withdrawal.
+     * @param proof Merkle proof for allowlist (empty array if open mode).
      */
-    function selfMint(bytes32[] calldata proof) external {
+    function mintWithDonation(bytes32[] calldata proof) external payable {
         if (_hasMembership[msg.sender]) revert AlreadyHasMembership(msg.sender);
         if (_revoked[msg.sender]) revert MembershipAlreadyRevoked(msg.sender);
+        if (msg.value < MEMBER_MINIMUM) revert DonationTooLow(msg.value, MEMBER_MINIMUM);
 
-        // ponytail: zero root = open minting, upgrade to on-chain registry if prove-and-revoke needed
+        // Allowlist check (zero root = open minting)
         if (merkleRoot != bytes32(0)) {
-            if (!MerkleProof.verify(proof, merkleRoot, keccak256(abi.encodePacked(msg.sender))))
+            if (!MerkleProof.verify(proof, merkleRoot, keccak256(abi.encodePacked(msg.sender)))) {
                 revert NotAllowlisted(msg.sender);
+            }
         }
 
+        // Determine tier by donation amount
+        Tier tier = msg.value >= LEADER_THRESHOLD ? Tier.Leader : Tier.Member;
+
+        uint256 number = nextMemberNumber;
         _hasMembership[msg.sender] = true;
-        _membershipType[msg.sender] = STANDARD_MEMBER;
+        _tier[msg.sender] = tier;
+        _memberNumber[msg.sender] = number;
         totalMembers++;
+        totalDonations += msg.value;
+        nextMemberNumber++;
 
-        _mint(msg.sender, STANDARD_MEMBER, 1, "");
+        _mint(msg.sender, FRDM_ID_TOKEN, 1, "");
 
-        emit MembershipMinted(msg.sender, STANDARD_MEMBER);
-    }
-
-    /**
-     * @notice Batch mint memberships to multiple addresses.
-     * @param tos Array of addresses.
-     * @param memberTypes Array of member types (same length as tos).
-     */
-    function batchMintMemberships(address[] calldata tos, uint256[] calldata memberTypes)
-        external
-        onlyOwner
-    {
-        if (tos.length != memberTypes.length) revert ArrayLengthMismatch();
-        if (tos.length == 0) revert ArrayLengthMismatch(); // ponytail: reuse existing error, empty batch is a no-op
-
-        for (uint256 i = 0; i < tos.length; i++) {
-            address to = tos[i];
-            uint256 mType = memberTypes[i];
-
-            if (_hasMembership[to]) revert AlreadyHasMembership(to);
-            if (_revoked[to]) revert MembershipAlreadyRevoked(to);
-            if (mType > DELEGATE) revert InvalidMemberType(mType);
-
-            _hasMembership[to] = true;
-            _membershipType[to] = mType;
-            totalMembers++;
-
-            _mint(to, mType, 1, "");
-
-            emit MembershipMinted(to, mType);
-        }
+        emit MembershipMinted(msg.sender, number, tier, msg.value);
     }
 
     // ============ Revocation ============
+
     /**
-     * @notice Revoke a member's membership (burn token).
+     * @notice Revoke a member's membership (burn their token).
      * @param member Address to revoke.
      */
-    function revokeMembership(address member)
-        external
-        onlyOwner
-    {
+    function revokeMembership(address member) external onlyOwner {
         if (!_hasMembership[member]) revert NoMembership(member);
 
-        uint256 mType = _membershipType[member];
+        _burn(member, FRDM_ID_TOKEN, 1);
 
-        _burn(member, mType, 1);
-
+        uint256 number = _memberNumber[member];
         _hasMembership[member] = false;
         _revoked[member] = true;
-        _membershipType[member] = type(uint256).max; // sentinel: revoked
+        _tier[member] = Tier.Member; // reset to default
+        _memberNumber[member] = 0;
         totalMembers--;
 
-        emit MembershipRevoked(member);
+        emit MembershipRevoked(member, number);
+    }
+
+    // ============ Donation Withdrawal ============
+
+    /**
+     * @notice Withdraw accumulated donations to the DAO treasury.
+     * @param to Address to send the ETH to.
+     */
+    function withdrawDonations(address payable to) external onlyOwner {
+        uint256 amount = totalDonations;
+        if (amount == 0) revert NoDonationsToWithdraw();
+        totalDonations = 0;
+        (bool sent, ) = to.call{value: amount}("");
+        require(sent, "Withdraw failed");
+        emit DonationWithdrawn(to, amount);
     }
 
     // ============ View Functions ============
+
     /**
      * @notice Check if an address holds FRDM-ID membership.
      */
@@ -192,11 +215,21 @@ contract FREEDAMMembership is ERC1155, Ownable {
     }
 
     /**
-     * @notice Get the membership type of an address.
+     * @notice Get the membership tier of an address.
      */
-    function getMembershipType(address account) external view returns (uint256) {
+    function getTier(address account) external view returns (Tier) {
         if (!_hasMembership[account]) revert NoMembership(account);
-        return _membershipType[account];
+        return _tier[account];
+    }
+
+    /**
+     * @notice Get the member number of an address (1-based sequential).
+     * @return uint256 Member number (Founder = 1, mint order = 2, 3, ...).
+     */
+    function getMemberNumber(address account) external view returns (uint256) {
+        uint256 number = _memberNumber[account];
+        if (number == 0) revert NoMembership(account);
+        return number;
     }
 
     /**
@@ -207,8 +240,9 @@ contract FREEDAMMembership is ERC1155, Ownable {
     }
 
     // ============ Allowlist ============
+
     /**
-     * @notice Set the merkle root for self-mint allowlist.
+     * @notice Set the merkle root for mint allowlist.
      * @dev Set to bytes32(0) to disable allowlist (open minting).
      */
     function setMerkleRoot(bytes32 root) external onlyOwner {
@@ -217,8 +251,10 @@ contract FREEDAMMembership is ERC1155, Ownable {
     }
 
     // ============ Metadata ============
+
     /**
      * @notice Update the metadata URI for token metadata.
+     * @dev Uses ERC-1155's {id} substitution — all members share the same token ID (0).
      */
     function setURI(string memory newURI) external onlyOwner {
         _setURI(newURI);
