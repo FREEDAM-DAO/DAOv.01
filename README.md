@@ -72,7 +72,7 @@ This repository contains the **minimum viable version** of FREEDAM. We’ve inte
 | Security          | [SECURITY.md](SECURITY.md)                |
 | Mint FRDM-ID      | [freedamdao.org/mint](https://www.freedamdao.org/mint) — testnet mint (Optimism Sepolia) |
 | Vote              | *Coming soon* |
-| Discord           | *Coming soon* |
+| Discord           | [discord.gg/Xs8Ucu7AfM](https://discord.gg/Xs8Ucu7AfM) |
 | X / Twitter       | [@FREEDAMDAO](https://x.com/FREEDAMDAO) |
 
 ---
