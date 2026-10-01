@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mint FRDM-ID | FREEDAM DAO</title>
+  <meta name="description" content="Mint your soulbound FRDM-ID membership credential on Optimism Sepolia testnet. One person, one membership.">
+  <meta property="og:title" content="Mint FRDM-ID | FREEDAM DAO">
+  <meta property="og:description" content="Soulbound civic membership. Testnet MVP — not mainnet, not a token sale.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.freedamdao.org/mint">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --accent: #6c5ce7;
+      --accent-bright: #a29bfe;
+      --text: #e8e8f0;
+      --text-dim: #8a8a9a;
+      --border: #1e1e2e;
+      --green: #00b894;
+      --amber: #fdcb6e;
+      --red: #e17055;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    a { color: var(--accent-bright); }
+    nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 24px; max-width: 760px; width: 100%; margin: 0 auto;
+    }
+    .logo { font-weight: 700; font-size: 1.1rem; letter-spacing: 0.05em; color: var(--text); text-decoration: none; }
+    .logo span { color: var(--accent-bright); }
+    .nav-links { display: flex; gap: 20px; }
+    .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; }
+    .nav-links a:hover { color: var(--text); }
+
+    main { flex: 1; width: 100%; max-width: 560px; margin: 0 auto; padding: 8px 20px 60px; }
+    h1 { font-size: 1.7rem; margin: 12px 0 4px; }
+    .sub { color: var(--text-dim); margin-bottom: 20px; font-size: 0.95rem; }
+
+    .banner {
+      background: rgba(253, 203, 110, 0.08);
+      border: 1px solid rgba(253, 203, 110, 0.35);
+      color: var(--amber);
+      border-radius: 10px; padding: 12px 14px; font-size: 0.85rem; margin-bottom: 20px;
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px; margin-bottom: 16px;
+    }
+    .card h2 { font-size: 1.05rem; margin-bottom: 12px; }
+    .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 6px 0; font-size: 0.92rem; }
+    .row .label { color: var(--text-dim); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; }
+    .pill { padding: 2px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+    .pill.green { background: rgba(0,184,148,0.12); color: var(--green); border: 1px solid rgba(0,184,148,0.4); }
+    .pill.amber { background: rgba(253,203,110,0.1); color: var(--amber); border: 1px solid rgba(253,203,110,0.35); }
+    .pill.dim { background: rgba(138,138,154,0.1); color: var(--text-dim); border: 1px solid var(--border); }
+
+    button {
+      width: 100%; padding: 14px; border-radius: 10px; border: none;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+      color: #fff; transition: opacity 0.15s, transform 0.05s;
+    }
+    button:hover:not(:disabled) { opacity: 0.9; }
+    button:active:not(:disabled) { transform: scale(0.99); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    button.secondary { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+
+    .tiers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .tier {
+      border: 1px solid var(--border); border-radius: 12px; padding: 14px;
+      cursor: pointer; background: var(--bg); transition: border-color 0.15s;
+    }
+    .tier.selected { border-color: var(--accent-bright); background: rgba(108,92,231,0.07); }
+    .tier .name { font-weight: 700; }
+    .tier .price { color: var(--accent-bright); font-weight: 600; font-size: 0.95rem; margin: 2px 0; }
+    .tier .desc { color: var(--text-dim); font-size: 0.8rem; }
+
+    .check { display: flex; gap: 10px; align-items: flex-start; font-size: 0.85rem; color: var(--text-dim); margin: 14px 0; cursor: pointer; }
+    .check input { margin-top: 4px; accent-color: var(--accent); }
+
+    .status-line { font-size: 0.88rem; margin-top: 12px; min-height: 1.4em; }
+    .status-line.err { color: var(--red); }
+    .status-line.ok { color: var(--green); }
+    .status-line.pending { color: var(--amber); }
+
+    .success-hero { text-align: center; padding: 16px 0; }
+    .success-hero .big { font-size: 2.4rem; font-weight: 800; background: linear-gradient(135deg, var(--accent-bright), var(--green)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .steps { font-size: 0.9rem; color: var(--text-dim); }
+    .steps li { margin: 6px 0 6px 18px; }
+    footer { text-align: center; padding: 24px; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); }
+    .hidden { display: none !important; }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: -2px; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="logo" href="/">FREEDAM<span>.</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="https://github.com/FREEDAM-DAO/DAOv.01">GitHub</a>
+      <a href="https://x.com/FREEDAMDAO">X</a>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Mint your FRDM-ID</h1>
+    <p class="sub">Soulbound civic membership credential. One person, one membership. Non-transferable, forever.</p>
+
+    <div class="banner">
+      <strong>Testnet MVP.</strong> This runs on Optimism Sepolia — a test network.
+      It is <u>not mainnet</u> and <u>not a token sale</u>. The ETH you use is testnet ETH with no real value
+      (<a href="https://www.alchemy.com/faucets/optimism-sepolia" target="_blank" rel="noopener">get free testnet ETH here</a>).
+      Your membership credential is real and permanent.
+    </div>
+
+    <!-- STEP 1: CONNECT -->
+    <div class="card" id="card-connect">
+      <h2>1 · Connect your wallet</h2>
+      <div class="row">
+        <span class="label">Network</span>
+        <span class="pill dim" id="net-pill">Optimism Sepolia</span>
+      </div>
+      <div class="row">
+        <span class="label">Members so far</span>
+        <span class="mono" id="total-members">…</span>
+      </div>
+      <div class="row">
+        <span class="label">Mint mode</span>
+        <span class="pill dim" id="mint-mode">checking…</span>
+      </div>
+      <div style="margin-top:14px">
+        <button id="btn-connect">Connect Wallet</button>
+      </div>
+      <div class="status-line" id="connect-status"></div>
+      <p class="steps" style="margin-top:12px">No wallet yet? <a href="https://metamask.io/download/" target="_blank" rel="noopener">Install MetaMask</a> (or Rabby, Coinbase Wallet, any Ethereum wallet), then come back. On your phone, open this page <em>inside</em> your wallet app's browser.</p>
+    </div>
+
+    <!-- STEP 2: MINT -->
+    <div class="card hidden" id="card-mint">
+      <h2>2 · Choose your support tier</h2>
+      <div class="row" style="padding-bottom:10px">
+        <span class="label">Connected</span>
+        <span class="mono" id="addr-label"></span>
+      </div>
+      <div class="row">
+        <span class="label">Your testnet ETH balance</span>
+        <span class="mono" id="bal-label">…</span>
+      </div>
+
+      <div class="tiers" style="margin-top:14px">
+        <div class="tier" id="tier-member" onclick="selectTier('member')">
+          <div class="name">Member</div>
+          <div class="price" id="price-member">0.001 ETH</div>
+          <div class="desc">Full membership: propose &amp; vote.</div>
+        </div>
+        <div class="tier" id="tier-leader" onclick="selectTier('leader')">
+          <div class="name">Leader</div>
+          <div class="price" id="price-leader">0.01 ETH</div>
+          <div class="desc">Member rights + Leader tier badge. Bigger donation to the treasury.</div>
+        </div>
+      </div>
+
+      <label class="check">
+        <input type="checkbox" id="human-check">
+        <span>I'm a human minting for myself, one membership. If I operate bots or agents that interact with FREEDAM, I will disclose them to the community.</span>
+      </label>
+
+      <button id="btn-mint" disabled>Mint FRDM-ID</button>
+      <div class="status-line" id="mint-status"></div>
+
+      <details style="margin-top:14px" id="allowlist-box">
+        <summary style="cursor:pointer; color:var(--text-dim); font-size:0.85rem;">Invite-only mint? Paste your allowlist proof</summary>
+        <textarea id="proof-input" rows="3" placeholder='["0x…", "0x…"] — leave empty if mint is open or your proof was auto-loaded'
+          style="width:100%; margin-top:8px; background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:10px; font-family:ui-monospace,Menlo,monospace; font-size:0.8rem;"></textarea>
+      </details>
+    </div>
+
+    <!-- STEP 3: SUCCESS -->
+    <div class="card hidden" id="card-done">
+      <div class="success-hero">
+        <div>🎉</div>
+        <div class="big" id="member-number">Member #—</div>
+        <div id="tier-label" class="pill green" style="display:inline-block; margin-top:6px;">Member</div>
+      </div>
+      <p class="sub" style="text-align:center">Your FRDM-ID is soulbound to this wallet — it can never be transferred or sold.</p>
+      <ul class="steps">
+        <li><a id="tx-link" href="#" target="_blank" rel="noopener">View your mint transaction ↗</a></li>
+        <li><a href="https://github.com/FREEDAM-DAO/DAOv.01/blob/main/governance/CONSTITUTION.md" target="_blank" rel="noopener">Read the Constitution</a> — what you just joined</li>
+        <li>Join the Discord (invite link on <a href="https://x.com/FREEDAMDAO" target="_blank" rel="noopener">@FREEDAMDAO</a> soon) and introduce yourself</li>
+        <li>Running an agent or bot on behalf of your membership? Disclose it — honesty is the entry fee</li>
+      </ul>
+      <button class="secondary" style="margin-top:16px" onclick="location.href='/'">Back to Home</button>
+    </div>
+  </main>
+
+  <footer>
+    FREEDAM DAO · Dissent. Stay Decent. Decentralize.<br>
+    Contract (Optimism Sepolia): <a class="mono" href="https://sepolia-optimism.etherscan.io/address/0x9af71751842C9fcE04e8f10473DDa43A8f9409B7" target="_blank" rel="noopener">0xB0b2…3728 ↗</a>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+  <script>
+    const CONTRACT = '0x9af71751842C9fcE04e8f10473DDa43A8f9409B7';
+    const RPC = 'https://sepolia.optimism.io';
+    // Local testing overrides (localhost only — ignored on production hostnames
+    // so a crafted link can never redirect users to a malicious contract).
+    const IS_LOCAL = ['localhost', '127.0.0.1'].includes(location.hostname);
+    const QS = new URLSearchParams(location.search);
+    const CONTRACT_T = IS_LOCAL && QS.get('contract') ? QS.get('contract') : CONTRACT;
+    const RPC_T = IS_LOCAL && QS.get('rpc') ? QS.get('rpc') : RPC;
+    const CHAIN_ID_HEX = '0xaa37dc'; // 11155420 Optimism Sepolia
+    const ABI = [
+      'function mintWithDonation(bytes32[] calldata proof) payable',
+      'function hasMembership(address) view returns (bool)',
+      'function getMemberNumber(address) view returns (uint256)',
+      'function getTier(address) view returns (uint8)',
+      'function totalMembers() view returns (uint256)',
+      'function merkleRoot() view returns (bytes32)',
+      'function MEMBER_MINIMUM() view returns (uint256)',
+      'function LEADER_THRESHOLD() view returns (uint256)',
+      'event MembershipMinted(address indexed member, uint256 memberNumber, uint8 tier, uint256 donation)',
+      'error AlreadyHasMembership(address member)',
+      'error MembershipAlreadyRevoked(address member)',
+      'error DonationTooLow(uint256 sent, uint256 minimum)',
+      'error NotAllowlisted(address member)'
+    ];
+    const TIER_NAMES = ['Founder', 'Leader', 'Member'];
+
+    const read = new ethers.Contract(CONTRACT_T, ABI, new ethers.JsonRpcProvider(RPC_T));
+    let signer = null, write = null, account = null;
+    let memberMin = ethers.parseEther('0.001'), leaderMin = ethers.parseEther('0.01');
+    let allowlistOpen = true, autoProof = [], selectedTier = null;
+
+    const $ = id => document.getElementById(id);
+    const short = a => a ? a.slice(0, 6) + '…' + a.slice(-4) : '';
+
+    function setMintStatus(msg, cls) { const el = $('mint-status'); el.textContent = msg || ''; el.className = 'status-line' + (cls ? ' ' + cls : ''); }
+    function setConnectStatus(msg, cls) { const el = $('connect-status'); el.textContent = msg || ''; el.className = 'status-line' + (cls ? ' ' + cls : ''); }
+
+    // ---- read-only page state (works before connecting) ----
+    async function loadPublicState() {
+      try {
+        const [total, root, min, leader] = await Promise.all([
+          read.totalMembers(), read.merkleRoot(), read.MEMBER_MINIMUM(), read.LEADER_THRESHOLD()
+        ]);
+        memberMin = min; leaderMin = leader;
+        $('total-members').textContent = total.toString();
+        $('price-member').textContent = ethers.formatEther(min) + ' ETH';
+        $('price-leader').textContent = ethers.formatEther(leader) + ' ETH';
+        allowlistOpen = root === ethers.ZeroHash;
+        $('mint-mode').textContent = allowlistOpen ? 'Open' : 'Invite-only';
+        $('mint-mode').className = 'pill ' + (allowlistOpen ? 'green' : 'amber');
+        if (!allowlistOpen) {
+          $('allowlist-box').open = true;
+          try { // auto-load proofs file if the DAO published one
+            const res = await fetch('./proofs.json');
+            if (res.ok) window.__proofs = await res.json();
+          } catch (e) { /* no proofs file — manual paste */ }
+        }
+      } catch (e) {
+        $('total-members').textContent = '—';
+        $('mint-mode').textContent = 'unreachable';
+      }
+    }
+
+    function selectTier(t) {
+      selectedTier = t;
+      $('tier-member').classList.toggle('selected', t === 'member');
+      $('tier-leader').classList.toggle('selected', t === 'leader');
+      refreshMintButton();
+    }
+
+    function refreshMintButton() {
+      $('btn-mint').disabled = !(selectedTier && $('human-check').checked);
+    }
+
+    // ---- wallet ----
+    async function connect() {
+      setConnectStatus('');
+      if (!window.ethereum) {
+        const isMobile = /iPhone|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+          location.href = 'https://metamask.app.link/dapp/' + location.host + location.pathname;
+          return;
+        }
+        setConnectStatus('No wallet detected. Install MetaMask or open this page inside your wallet app\'s browser.', 'err');
+        return;
+      }
+      try {
+        $('btn-connect').disabled = true;
+        setConnectStatus('Approve the connection request in your wallet…', 'pending');
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const net = await provider.getNetwork();
+        if (net.chainId !== 11155420n) {
+          setConnectStatus('Switching your wallet to Optimism Sepolia…', 'pending');
+          try {
+            await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CHAIN_ID_HEX }] });
+          } catch (swErr) {
+            if (swErr.code === 4902) {
+              await window.ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [{
+                  chainId: CHAIN_ID_HEX, chainName: 'Optimism Sepolia',
+                  nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
+                  rpcUrls: ['https://sepolia.optimism.io'],
+                  blockExplorerUrls: ['https://sepolia-optimism.etherscan.io']
+                }]
+              });
+            } else throw swErr;
+          }
+        }
+        const accounts = await provider.send('eth_requestAccounts', []);
+        account = accounts[0];
+        signer = await provider.getSigner();
+        write = new ethers.Contract(CONTRACT_T, ABI, signer);
+
+        $('addr-label').textContent = short(account);
+        $('card-mint').classList.remove('hidden');
+        $('btn-connect').textContent = 'Connected: ' + short(account);
+        setConnectStatus('Connected ✓', 'ok');
+
+        // already a member?
+        if (await read.hasMembership(account)) return showAlreadyMember();
+
+        const bal = await provider.getBalance(account);
+        $('bal-label').textContent = parseFloat(ethers.formatEther(bal)).toFixed(4) + ' ETH';
+        if (bal < memberMin) {
+          setMintStatus('Not enough testnet ETH. Get some free from the faucet (link in the yellow banner above), then refresh.', 'err');
+        }
+        // auto proof
+        if (window.__proofs) {
+          const key = Object.keys(window.__proofs).find(k => k.toLowerCase() === account.toLowerCase());
+          if (key) { autoProof = window.__proofs[key]; $('proof-input').value = JSON.stringify(autoProof); }
+        }
+        window.ethereum.on && window.ethereum.on('accountsChanged', () => location.reload());
+        window.ethereum.on && window.ethereum.on('chainChanged', () => location.reload());
+      } catch (e) {
+        $('btn-connect').disabled = false;
+        $('btn-connect').textContent = 'Connect Wallet';
+        setConnectStatus(e.code === 4001 ? 'Connection rejected in wallet.' : 'Could not connect: ' + (e.shortMessage || e.message), 'err');
+      }
+    }
+
+    async function showAlreadyMember() {
+      try {
+        const [num, tier] = await Promise.all([read.getMemberNumber(account), read.getTier(account)]);
+        $('card-mint').classList.add('hidden');
+        $('card-done').classList.remove('hidden');
+        $('member-number').textContent = 'Member #' + num.toString();
+        $('tier-label').textContent = TIER_NAMES[Number(tier)] || 'Member';
+        $('tx-link').outerHTML = '<a href="https://sepolia-optimism.etherscan.io/address/' + account + '" target="_blank" rel="noopener">View your wallet on the explorer ↗</a>';
+      } catch (e) { /* view reverts — stay on mint card */ }
+    }
+
+    function parseProof() {
+      const raw = ($('proof-input').value || '').trim();
+      if (!raw) return autoProof.length ? autoProof : [];
+      try {
+        const arr = JSON.parse(raw);
+        if (!Array.isArray(arr) || !arr.every(x => typeof x === 'string' && /^0x[0-9a-fA-F]{64}$/.test(x)))
+          throw new Error('bad format');
+        return arr;
+      } catch (e) {
+        throw new Error('Allowlist proof must be a JSON array of 32-byte hex strings, e.g. ["0x…","0x…"]');
+      }
+    }
+
+    async function mint() {
+      let proof;
+      try { proof = parseProof(); } catch (e) { return setMintStatus(e.message, 'err'); }
+      const value = selectedTier === 'leader' ? leaderMin : memberMin;
+      $('btn-mint').disabled = true;
+      try {
+        setMintStatus('Confirm in your wallet…', 'pending');
+        const tx = await write.mintWithDonation(proof, { value });
+        setMintStatus('Minting — waiting for confirmation…', 'pending');
+        const receipt = await tx.wait();
+        // find MembershipMinted event for member number
+        let num = null;
+        for (const log of receipt.logs) {
+          try {
+            const parsed = read.interface.parseLog({ topics: log.topics, data: log.data });
+            if (parsed && parsed.name === 'MembershipMinted') { num = parsed.args.memberNumber; break; }
+          } catch (e) {}
+        }
+        $('card-mint').classList.add('hidden');
+        $('card-done').classList.remove('hidden');
+        $('member-number').textContent = 'Member #' + (num ? num.toString() : '✓');
+        $('tier-label').textContent = selectedTier === 'leader' ? 'Leader' : 'Member';
+        $('tx-link').href = 'https://sepolia-optimism.etherscan.io/tx/' + receipt.hash;
+        loadPublicState();
+      } catch (e) {
+        $('btn-mint').disabled = false;
+        refreshMintButton();
+        const data = e.data || '';
+        let msg = e.shortMessage || e.message || 'Mint failed';
+        if (e.code === 'ACTION_REJECTED' || e.code === 4001) msg = 'Transaction rejected in wallet.';
+        else if (data) {
+          try {
+            const parsed = read.interface.parseError(data);
+            const n = parsed.name;
+            if (n === 'AlreadyHasMembership') msg = 'This wallet already has a membership.';
+            else if (n === 'DonationTooLow') msg = 'Donation below minimum — pick a tier and try again.';
+            else if (n === 'NotAllowlisted') msg = 'Mint is invite-only right now and this wallet is not on the allowlist. Join via the volunteer form and we will add you.';
+            else if (n === 'MembershipAlreadyRevoked') msg = 'This wallet\'s membership was revoked and cannot re-mint.';
+            else msg = 'Mint failed: ' + n;
+          } catch (_) {}
+        }
+        setMintStatus(msg, 'err');
+      }
+    }
+
+    $('btn-connect').addEventListener('click', connect);
+    $('btn-mint').addEventListener('click', mint);
+    $('human-check').addEventListener('change', refreshMintButton);
+    loadPublicState();
+  </script>
+</body>
+</html>
