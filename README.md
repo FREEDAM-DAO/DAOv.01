@@ -35,7 +35,7 @@ freedam-dao/
 
 ## The Token Model (MVP)
 
-- **FRDM-ID** — ERC-1155 soulbound membership credential (non-transferable, free to mint). Grants proposal and voting rights.
+- **FRDM-ID** — ERC-1155 soulbound membership credential (non-transferable). Minted with a donation to the DAO treasury — testnet tiers: ~$1 Member, ~$10 Leader. Grants proposal and voting rights.
 - **FRDM** — ERC-20 governance token earned through participation (not sold). Powers quadratic voting weight.
 
 **No presale. No VC allocation. No founder reserve.** Fair launch.
@@ -70,7 +70,7 @@ This repository contains the **minimum viable version** of FREEDAM. We’ve inte
 | Whitepaper        | [WHITEPAPER.md](WHITEPAPER.md)            |
 | Governance Docs   | [governance/](governance/)                |
 | Security          | [SECURITY.md](SECURITY.md)                |
-| Mint FRDM-ID      | [Status page](https://www.freedamdao.org/mint) — wallet mint not live yet |
+| Mint FRDM-ID      | [freedamdao.org/mint](https://www.freedamdao.org/mint) — testnet mint (Optimism Sepolia) |
 | Vote              | *Coming soon* |
 | Discord           | *Coming soon* |
 | X / Twitter       | [@FREEDAMDAO](https://x.com/FREEDAMDAO) |

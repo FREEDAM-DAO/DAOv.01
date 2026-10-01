@@ -33,6 +33,22 @@ module.exports = {
       chainId: 1,
     },
   },
+  etherscan: {
+    apiKey: { optimismSepolia: "no-api-key-needed" },
+    customChains: [
+      {
+        network: "optimismSepolia",
+        chainId: 11155420,
+        urls: {
+          apiURL: "https://sepolia-optimism.etherscan.io/api",
+          browserURL: "https://sepolia-optimism.etherscan.io",
+        },
+      },
+    ],
+  },
+  sourcify: {
+    enabled: true,
+  },
   paths: {
     sources: "./contracts/src",
     tests: "./contracts/test",
