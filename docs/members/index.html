@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Member Directory | FREEDAM DAO</title>
+  <meta name="description" content="The public FREEDAM member roll — every FRDM-ID, on-chain and permanent.">
+  <style>
+    :root {
+      --bg: #0a0a0f; --surface: #12121a; --accent: #6c5ce7; --accent-bright: #a29bfe;
+      --text: #e8e8f0; --text-dim: #8a8a9a; --border: #1e1e2e;
+      --green: #00b894; --amber: #fdcb6e;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.6;
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+    a { color: var(--accent-bright); }
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; max-width: 860px; width: 100%; margin: 0 auto; }
+    .logo { font-weight: 700; font-size: 1.1rem; letter-spacing: 0.05em; color: var(--text); text-decoration: none; }
+    .logo span { color: var(--accent-bright); }
+    .nav-links { display: flex; gap: 20px; }
+    .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; }
+    .nav-links a:hover { color: var(--text); }
+
+    main { flex: 1; width: 100%; max-width: 860px; margin: 0 auto; padding: 8px 20px 60px; }
+    h1 { font-size: 1.7rem; margin: 12px 0 4px; }
+    .sub { color: var(--text-dim); margin-bottom: 20px; font-size: 0.95rem; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+    th { text-align: left; color: var(--text-dim); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    .num { font-weight: 800; color: var(--accent-bright); }
+    .tier { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+    .tier.founder { background: rgba(108,92,231,0.15); color: var(--accent-bright); border: 1px solid rgba(108,92,231,0.5); }
+    .tier.leader  { background: rgba(253,203,110,0.1); color: var(--amber); border: 1px solid rgba(253,203,110,0.4); }
+    .tier.member  { background: rgba(0,184,148,0.12); color: var(--green); border: 1px solid rgba(0,184,148,0.4); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; }
+    .dim { color: var(--text-dim); }
+    #status { color: var(--text-dim); font-size: 0.9rem; padding: 8px 2px; }
+    footer { text-align: center; padding: 24px; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); }
+    @media (max-width: 640px) { .hide-sm { display: none; } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="logo" href="/">FREEDAM<span>.</span></a>
+    <div class="nav-links">
+      <a href="/mint">Mint</a>
+      <a href="/join">Join</a>
+      <a href="https://discord.gg/Xs8Ucu7AfM">Discord</a>
+      <a href="https://github.com/FREEDAM-DAO/DAOv.01">GitHub</a>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Member Directory</h1>
+    <p class="sub">The founding roll of FREEDAM DAO — every FRDM-ID, read live from the blockchain. Public and permanent.</p>
+
+    <div class="card">
+      <div id="status">Loading member roll…</div>
+      <table id="members-table" class="hidden" style="display:none">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tier</th>
+            <th class="hide-sm">Wallet</th>
+            <th class="hide-sm">Joined</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <p class="sub">The roll is public and permanent — this is civic membership, not a token. <a href="/mint">Mint your FRDM-ID →</a></p>
+  </main>
+
+  <footer>
+    FREEDAM DAO · Dissent. Stay Decent. Decentralize.<br>
+    Source: <span class="mono">MembershipMinted</span> events, Optimism Sepolia
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+  <script>
+    // ---- config (localhost overrides are ignored on production hostnames) ----
+    const CONTRACT = '0x9af71751842C9fcE04e8f10473DDa43A8f9409B7';
+    const RPC = 'https://sepolia.optimism.io';
+    const IS_LOCAL = ['localhost', '127.0.0.1'].includes(location.hostname);
+    const QS = new URLSearchParams(location.search);
+    const CONTRACT_T = IS_LOCAL && QS.get('contract') ? QS.get('contract') : CONTRACT;
+    const RPC_T = IS_LOCAL && QS.get('rpc') ? QS.get('rpc') : RPC;
+    // Deploy block of the active contract (deploy tx 0x267a450b…). Scanning starts here.
+    const DEPLOY_BLOCK = 49516009;
+    const FROM_BLOCK = IS_LOCAL && QS.get('fromBlock') ? parseInt(QS.get('fromBlock')) : DEPLOY_BLOCK;
+    // topic0 for MembershipMinted(address indexed member, uint256 memberNumber, uint8 tier, uint256 donation)
+    const MINTED_TOPIC = '0x6e55d1e60f34b9b33d9c2309e5020b4d5246e723e3f8e56c1a293e8d06dddd6b';
+    const TIER_NAMES = ['Founder', 'Leader', 'Member'];
+    const CHUNK = 50000;
+
+    const $ = id => document.getElementById(id);
+    const short = a => a.slice(0, 6) + '…' + a.slice(-4);
+    const EXPLORER = RPC_T.includes('127.0.0.1') ? null : 'https://sepolia-optimism.etherscan.io';
+
+    function setStatus(msg) { $('status').textContent = msg; }
+
+    async function rpcCall(method, params) {
+      const res = await fetch(RPC_T, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params })
+      });
+      const json = await res.json();
+      if (json.error) throw new Error(json.error.message);
+      return json.result;
+    }
+
+    async function fetchAllMintEvents() {
+      const latestHex = await rpcCall('eth_blockNumber', []);
+      const latest = parseInt(latestHex, 16);
+      const events = [];
+      for (let from = FROM_BLOCK; from <= latest; from += CHUNK) {
+        const to = Math.min(from + CHUNK - 1, latest);
+        const logs = await rpcCall('eth_getLogs', [{
+          address: CONTRACT_T,
+          fromBlock: '0x' + from.toString(16),
+          toBlock: '0x' + to.toString(16),
+          topics: [MINTED_TOPIC]
+        }]);
+        events.push(...logs);
+        setStatus(`Scanning chain… block ${Math.min(to, latest).toLocaleString()} / ${latest.toLocaleString()}`);
+      }
+      return events;
+    }
+
+    async function blockTimestamp(hexNum) {
+      const b = await rpcCall('eth_getBlockByNumber', [hexNum, false]);
+      return parseInt(b.timestamp, 16);
+    }
+
+    async function main() {
+      try {
+        const logs = await fetchAllMintEvents();
+        if (!logs.length) { setStatus('No members found yet — be the first: /mint'); return; }
+
+        const members = logs.map(log => ({
+          address: ethers.getAddress('0x' + log.topics[1].slice(26)),
+          number: parseInt(log.data.slice(0, 66), 16),
+          tier: parseInt(log.data.slice(66, 130), 16),
+          blockHex: log.blockNumber,
+        })).sort((a, b) => a.number - b.number);
+
+        // dedupe by member number (revoked+mint edge cases): keep the latest block
+        const byNum = new Map();
+        for (const m of members) byNum.set(m.number, m);
+        const list = [...byNum.values()].sort((a, b) => a.number - b.number);
+
+        setStatus(`Loading join dates for ${list.length} member(s)…`);
+        // unique blocks only
+        const tsCache = new Map();
+        for (const m of list) {
+          if (!tsCache.has(m.blockHex)) tsCache.set(m.blockHex, await blockTimestamp(m.blockHex));
+          m.joined = tsCache.get(m.blockHex);
+        }
+
+        const tbody = $('members-table').querySelector('tbody');
+        for (const m of list) {
+          const tr = document.createElement('tr');
+          const tierName = TIER_NAMES[m.tier] || 'Member';
+          const date = new Date(m.joined * 1000).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+          const link = EXPLORER ? `<a href="${EXPLORER}/address/${m.address}" target="_blank" rel="noopener">↗</a>` : '<a href="#">local</a>';
+          tr.innerHTML =
+            `<td class="num">#${m.number}</td>` +
+            `<td><span class="tier ${tierName.toLowerCase()}">${tierName}</span></td>` +
+            `<td class="mono hide-sm">${short(m.address)}</td>` +
+            `<td class="dim hide-sm">${date}</td>` +
+            `<td>${link}</td>`;
+          tbody.appendChild(tr);
+        }
+        $('status').style.display = 'none';
+        $('members-table').style.display = 'table';
+      } catch (e) {
+        setStatus('Could not read the chain right now: ' + (e.message || e) + ' — refresh in a moment.');
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>

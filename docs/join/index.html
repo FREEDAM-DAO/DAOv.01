@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join FREEDAM DAO — Welcome &amp; Onboarding</title>
+  <meta name="description" content="Mint your FRDM-ID in 3 minutes and join the FREEDAM DAO community. Non-partisan civic governance infrastructure.">
+  <style>
+    :root {
+      --bg: #0a0a0f; --surface: #12121a; --accent: #6c5ce7; --accent-bright: #a29bfe;
+      --text: #e8e8f0; --text-dim: #8a8a9a; --border: #1e1e2e;
+      --green: #00b894; --amber: #fdcb6e;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.7;
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+    a { color: var(--accent-bright); }
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; max-width: 760px; width: 100%; margin: 0 auto; }
+    .logo { font-weight: 700; font-size: 1.1rem; letter-spacing: 0.05em; color: var(--text); text-decoration: none; }
+    .logo span { color: var(--accent-bright); }
+    .nav-links { display: flex; gap: 20px; }
+    .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; }
+    .nav-links a:hover { color: var(--text); }
+
+    main { flex: 1; width: 100%; max-width: 760px; margin: 0 auto; padding: 8px 20px 60px; }
+    h1 { font-size: 1.9rem; margin: 16px 0 6px; }
+    h2 { font-size: 1.25rem; margin: 28px 0 10px; color: var(--accent-bright); }
+    h3 { font-size: 1.05rem; margin: 18px 0 6px; }
+    p, li { color: var(--text); font-size: 0.95rem; }
+    .sub { color: var(--text-dim); margin-bottom: 20px; }
+    .banner { background: rgba(253,203,110,0.08); border: 1px solid rgba(253,203,110,0.35); color: var(--amber); border-radius: 10px; padding: 12px 14px; font-size: 0.85rem; margin-bottom: 24px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; margin-bottom: 16px; }
+    ol.steps li { margin: 10px 0 10px 20px; }
+    ul.plain li { margin: 6px 0 6px 20px; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.9rem; }
+    th { text-align: left; color: var(--text-dim); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    td { padding: 9px 10px; border-bottom: 1px solid var(--border); }
+    .btn { display: inline-block; padding: 12px 24px; border-radius: 10px; font-weight: 700; text-decoration: none; background: linear-gradient(135deg, var(--accent), var(--accent-bright)); color: #fff; }
+    .btn.secondary { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+    footer { text-align: center; padding: 24px; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="logo" href="/">FREEDAM<span>.</span></a>
+    <div class="nav-links">
+      <a href="/mint">Mint</a>
+      <a href="/members">Members</a>
+      <a href="https://discord.gg/Xs8Ucu7AfM">Discord</a>
+      <a href="https://github.com/FREEDAM-DAO/DAOv.01">GitHub</a>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Welcome to FREEDAM DAO</h1>
+    <p class="sub"><strong>Free Decentralized Autonomous Movement</strong> — a non-partisan, open-source civic community. We build tools that make democratic participation accessible, transparent, and verifiable on-chain.</p>
+
+    <div class="banner">
+      <strong>Testnet MVP.</strong> Everything below runs on Optimism Sepolia, a test network. The ETH has no real value. The membership roll is real and permanent. This is not a token sale and not an investment.
+    </div>
+
+    <h2>1 · Mint your FRDM-ID in 3 minutes</h2>
+    <div class="card">
+      <p>A <strong>FRDM-ID</strong> is your soulbound (non-transferable) membership credential. Each one carries:</p>
+      <ul class="plain">
+        <li>A <strong>sequential member number</strong> — Founder = #1, then #2, #3…</li>
+        <li>A <strong>membership tier</strong> — Member or Leader, set by your donation</li>
+        <li><strong>Voting power</strong> — one FRDM-ID, one vote in DAO governance</li>
+      </ul>
+
+      <h3>Tiers</h3>
+      <table>
+        <thead><tr><th>Tier</th><th>Donation (testnet ETH)</th><th>Discord role</th></tr></thead>
+        <tbody>
+          <tr><td>Founder</td><td>Reserved for the DAO founder</td><td>Founder (Admin)</td></tr>
+          <tr><td>Leader</td><td>0.01+ (~$10)</td><td>Leader</td></tr>
+          <tr><td>Member</td><td>0.001–0.009 (~$1–$9)</td><td>Member</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Step by step</h3>
+      <ol class="steps">
+        <li><strong>Get a wallet.</strong> <a href="https://metamask.io/" target="_blank" rel="noopener">MetaMask</a> (most popular), <a href="https://www.coinbase.com/wallet" target="_blank" rel="noopener">Coinbase Wallet</a> (simplest), or <a href="https://rainbow.me/" target="_blank" rel="noopener">Rainbow</a> (mobile). On a phone, open this page inside your wallet app's browser.</li>
+        <li><strong>Get free testnet ETH</strong> on <em>Optimism Sepolia</em>: <a href="https://www.alchemy.com/faucets/optimism-sepolia" target="_blank" rel="noopener">Alchemy OP Sepolia faucet</a> (free account). Paste your wallet address, claim, wait a minute.</li>
+        <li><strong>Go to <a href="/mint">/mint</a></strong>, connect your wallet (it will switch you to the right network automatically), pick your tier, confirm. One transaction: donation + membership.</li>
+        <li><strong>You are Member #X.</strong> Your number is permanent and public on the <a href="/members">member directory</a>.</li>
+      </ol>
+
+      <div class="cta-row">
+        <a href="/mint" class="btn">Mint your FRDM-ID</a>
+        <a href="/members" class="btn secondary">See the member roll</a>
+      </div>
+    </div>
+
+    <h2>2 · Join the community</h2>
+    <div class="card">
+      <ol class="steps">
+        <li><strong>Join the <a href="https://discord.gg/Xs8Ucu7AfM" target="_blank" rel="noopener">FREEDAM Discord</a>.</strong> New arrivals start in #welcome.</li>
+        <li><strong>Get verified.</strong> DM a mod your wallet address (or your explorer link from the mint page). We check it on-chain and assign your Member or Leader role — that unlocks the rest of the server.</li>
+        <li><strong>Introduce yourself</strong> in #general: what brought you here, what you want to build.</li>
+        <li><strong>Read the rules.</strong> Non-partisan at the protocol level. One person, one membership. Running a bot or agent? Disclose it — see the <a href="https://github.com/FREEDAM-DAO/DAOv.01/blob/main/community/CODE_OF_CONDUCT.md" target="_blank" rel="noopener">Code of Conduct</a>.</li>
+      </ol>
+      <p>Follow <a href="https://x.com/FREEDAMDAO" target="_blank" rel="noopener">@FREEDAMDAO</a> for weekly build logs.</p>
+    </div>
+
+    <h2>3 · Contribute</h2>
+    <div class="card">
+      <p>FREEDAM is open source (MIT). Code, design, writing, organizing — all welcome.</p>
+      <ul class="plain">
+        <li><a href="https://github.com/FREEDAM-DAO/DAOv.01/issues" target="_blank" rel="noopener">GitHub issues</a> — look for <em>good first issue</em></li>
+        <li><a href="https://github.com/FREEDAM-DAO/DAOv.01/blob/main/community/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing guide</a> — fork, branch, PR</li>
+        <li><a href="https://github.com/FREEDAM-DAO/DAOv.01/blob/main/governance/CONSTITUTION.md" target="_blank" rel="noopener">Constitution</a> · <a href="https://github.com/FREEDAM-DAO/DAOv.01/blob/main/WHITEPAPER.md" target="_blank" rel="noopener">Whitepaper</a></li>
+        <li>Questions: Discord #general for quick ones, GitHub issues for technical ones</li>
+      </ul>
+      <h3>Governance</h3>
+      <p>FREEDAM votes on <strong>Snapshot</strong> (off-chain, gasless — you just sign a message). FRDM-ID holders decide constitution amendments, strategy, and development priorities. Proposals are discussed in Discord #governance and voted in the Snapshot space (link goes live with our first proposal — watch #info).</p>
+    </div>
+
+    <div class="cta-row" style="justify-content:center">
+      <a href="/mint" class="btn">Mint your FRDM-ID →</a>
+    </div>
+  </main>
+
+  <footer>
+    FREEDAM DAO · Dissent. Stay Decent. Decentralize.<br>
+    Open source under MIT · No presale · No VC allocation · No founder reserve
+  </footer>
+</body>
+</html>
