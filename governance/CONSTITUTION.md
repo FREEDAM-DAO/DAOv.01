@@ -33,15 +33,15 @@ The DAO is explicitly civic. It is not a DeFi protocol, a speculative venture, o
 
 ## Article IV — Governance
 
-Governance follows the lifecycle: **Draft → Review → Snapshot Vote → Execution → Accountability.**
+Governance follows the lifecycle: **Draft → Review → Sovereign Vote → Execution → Accountability.**
 
-1. **Draft.** Any FRDM-ID holder may submit a proposal with rationale, budget (if any), and success criteria.
-2. **Review.** 72-hour community discussion on Discord + governance forum.
-3. **Vote.** 5-day gasless Snapshot vote. Quorum: 10% of active FRDM-ID holders.
-4. **Execution.** Approved proposals execute on-chain via Gnosis Safe + Tally.
-5. **Accountability.** Funded proposals report outcomes on-chain within 90 days.
+1. **Draft.** Formal proposals are structured according to the FIP specification with rationale, budget (if any), and verifiable criteria. During initial phases, core operator submission ensures spam resistance.
+2. **Review.** 72-hour community discussion on Discord and community forums.
+3. **Vote.** 30-day gasless cryptographic ballot hosted natively at freedamdao.org/vote. Quorum: 25% of active FRDM-ID holders.
+4. **Execution.** Approved proposals execute via Gnosis Safe multisig (advisory consensus model in v1; transitioning to trustless execution as protocol matures).
+5. **Accountability.** Funded proposals report outcomes publicly within 90 days.
 
-**Voting power** = √(FRDM held + XP earned).  
+**Voting power** = Weighted by verified Aura points held as of the proposal start timestamp/block. Valid FRDM-ID membership required to cast a ballot.  
 **Treasury** = Gnosis Safe multisig, 3-of-5 signers, geographically distributed and identity-verified.
 
 ## Article V — Token Architecture

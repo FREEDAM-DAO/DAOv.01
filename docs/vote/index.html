@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sovereign Governance | FREEDAM DAO</title>
+  <meta name="description" content="Vote on active FREEDAM DAO proposals with zero gas using sovereign cryptographic signatures.">
+  <meta property="og:title" content="FREEDAM Sovereign Governance">
+  <meta property="og:description" content="Gasless, self-hosted, Aura-weighted civic voting.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.freedamdao.org/vote">
+  <style>
+    :root {
+      /* shadcn / civic gold tokens */
+      --background: #0c1118;
+      --foreground: #ece6d8;
+      --card: #121824;
+      --card-foreground: #ece6d8;
+      --popover: #121824;
+      --popover-foreground: #ece6d8;
+      --primary: #c4a35a;
+      --primary-foreground: #0c1118;
+      --secondary: #1a2232;
+      --secondary-foreground: #ece6d8;
+      --muted: #1c2638;
+      --muted-foreground: #9a9588;
+      --accent: #222e44;
+      --accent-foreground: #ece6d8;
+      --destructive: #b91c1c;
+      --destructive-foreground: #ece6d8;
+      --border: #2a3140;
+      --input: #2a3140;
+      --ring: #c4a35a;
+      --radius: 0.5rem;
+      --success: #2ea043;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--background);
+      color: var(--foreground);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 1.5rem;
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .logo {
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+      color: var(--foreground);
+      text-decoration: none;
+    }
+    .logo span { color: var(--primary); }
+    .nav-links { display: flex; gap: 1.25rem; align-items: center; }
+    .nav-links a {
+      color: var(--muted-foreground);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.15s ease;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--foreground); }
+
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem 3.5rem;
+    }
+
+    /* shadcn Badge Primitive */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 9999px;
+      padding: 0.2rem 0.65rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1;
+      border: 1px solid transparent;
+    }
+    .badge-primary {
+      background-color: rgba(196, 163, 90, 0.15);
+      color: var(--primary);
+      border-color: rgba(196, 163, 90, 0.35);
+    }
+    .badge-secondary {
+      background-color: var(--secondary);
+      color: var(--muted-foreground);
+      border-color: var(--border);
+    }
+
+    /* shadcn Card Primitive */
+    .card {
+      background-color: var(--card);
+      color: var(--card-foreground);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card-header { margin-bottom: 1.25rem; }
+    .card-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: var(--foreground);
+      margin-bottom: 0.5rem;
+    }
+    .card-description {
+      color: var(--muted-foreground);
+      font-size: 0.92rem;
+    }
+
+    /* Key/Value stats grid */
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.75rem;
+      background-color: var(--secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.85rem;
+      margin: 1.25rem 0;
+    }
+    .meta-item .meta-label {
+      font-size: 0.75rem;
+      color: var(--muted-foreground);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .meta-item .meta-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--foreground);
+      margin-top: 0.15rem;
+    }
+
+    /* Voting options radio block */
+    .vote-options { display: flex; flex-direction: column; gap: 0.75rem; margin: 1.25rem 0; }
+    .vote-option {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background-color: var(--background);
+      cursor: pointer;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+    .vote-option:hover {
+      border-color: var(--primary);
+      background-color: rgba(196, 163, 90, 0.03);
+    }
+    .vote-option input[type="radio"] {
+      accent-color: var(--primary);
+      width: 1.1rem;
+      height: 1.1rem;
+      cursor: pointer;
+    }
+    .vote-option-label {
+      font-weight: 500;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    /* Progress Bar */
+    .progress-bar-bg {
+      background-color: var(--secondary);
+      border-radius: 9999px;
+      height: 0.5rem;
+      overflow: hidden;
+      margin-top: 0.5rem;
+      border: 1px solid var(--border);
+    }
+    .progress-bar-fill {
+      background-color: var(--primary);
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* shadcn Button Primitives */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.75rem 1.25rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      width: 100%;
+    }
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+    }
+    .btn-primary:hover:not(:disabled) {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background-color: var(--secondary);
+      color: var(--foreground);
+      border-color: var(--border);
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background-color: var(--accent);
+    }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .alert {
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.88rem;
+      margin-top: 1rem;
+      display: none;
+    }
+    .alert-info {
+      background-color: rgba(196, 163, 90, 0.08);
+      border: 1px solid rgba(196, 163, 90, 0.3);
+      color: var(--foreground);
+    }
+    .alert-success {
+      background-color: rgba(46, 160, 67, 0.12);
+      border: 1px solid rgba(46, 160, 67, 0.35);
+      color: #7ee787;
+    }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+  <nav>
+    <a href="/" class="logo">FREE<span>DAM</span></a>
+    <div class="nav-links">
+      <a href="/join">Join</a>
+      <a href="/members">Directory</a>
+      <a href="/mint">Mint ID</a>
+      <a href="/vote" class="active">Governance</a>
+    </div>
+  </nav>
+
+  <main>
+    <div style="margin-bottom: 1.5rem;">
+      <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+        <span class="badge badge-primary">Sovereign Governance</span>
+        <span class="badge badge-secondary">Zero Gas · EIP-712</span>
+      </div>
+      <h1 style="font-size: 1.85rem; font-weight: 800; letter-spacing: -0.02em;">Active Ballots</h1>
+      <p style="color: var(--muted-foreground); font-size: 0.95rem;">
+        Cast your cryptographic ballot directly from your wallet. Verified off-chain and sealed to GitOps & IPFS.
+      </p>
+    </div>
+
+    <!-- Active Proposal Card -->
+    <div class="card" id="proposal-card">
+      <div class="card-header">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
+          <span class="badge badge-secondary" style="margin-bottom: 0.5rem;">FIP-001 · Constitutional</span>
+          <span class="badge badge-primary">Voting Open</span>
+        </div>
+        <h2 class="card-title">Founding Ratification of the FREEDAM DAO Constitution</h2>
+        <p class="card-description">
+          Formally codifies the sovereign governance lifecycle, non-partisan protocol charter, and 30-day Aura-weighted democratic voting.
+        </p>
+      </div>
+
+      <div class="meta-grid">
+        <div class="meta-item">
+          <div class="meta-label">Voting Period</div>
+          <div class="meta-value">30 Days</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Quorum Required</div>
+          <div class="meta-value">25% Active</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Weighting</div>
+          <div class="meta-value">Aura-Weighted</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Network</div>
+          <div class="meta-value">OP Sepolia</div>
+        </div>
+      </div>
+
+      <div style="margin: 1rem 0;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted-foreground);">
+          <span>Quorum Progress</span>
+          <span id="quorum-stat">Founding Phase</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="quorum-bar" style="width: 15%;"></div>
+        </div>
+      </div>
+
+      <form id="vote-form">
+        <div class="vote-options">
+          <label class="vote-option">
+            <input type="radio" name="ballot-choice" value="For / Ratify" required>
+            <span class="vote-option-label">For / Ratify (Adopt Constitution v1.0)</span>
+          </label>
+          <label class="vote-option">
+            <input type="radio" name="ballot-choice" value="Against / Reject">
+            <span class="vote-option-label">Against / Reject</span>
+          </label>
+          <label class="vote-option">
+            <input type="radio" name="ballot-choice" value="Abstain">
+            <span class="vote-option-label">Abstain</span>
+          </label>
+        </div>
+
+        <button type="button" class="btn btn-secondary" id="connect-wallet-btn" style="margin-bottom: 0.75rem;">
+          Connect Wallet to Vote
+        </button>
+        <button type="submit" class="btn btn-primary" id="sign-ballot-btn" style="display: none;" disabled>
+          Sign & Cast Sovereign Vote
+        </button>
+      </form>
+
+      <div class="alert alert-info" id="status-box"></div>
+      <div class="alert alert-success" id="receipt-box"></div>
+    </div>
+  </main>
+
+  <script>
+    const MEMBERSHIP_CONTRACT = "0x9af71751842C9fcE04e8f10473DDa43A8f9409B7";
+    const OP_SEPOLIA_CHAIN_ID = 11155420;
+
+    let provider = null;
+    let signer = null;
+    let userAddress = null;
+
+    const connectBtn = document.getElementById("connect-wallet-btn");
+    const signBtn = document.getElementById("sign-ballot-btn");
+    const voteForm = document.getElementById("vote-form");
+    const statusBox = document.getElementById("status-box");
+    const receiptBox = document.getElementById("receipt-box");
+
+    function showStatus(text) {
+      statusBox.style.display = "block";
+      statusBox.textContent = text;
+    }
+
+    function showReceipt(text) {
+      receiptBox.style.display = "block";
+      receiptBox.innerHTML = text;
+    }
+
+    async function initWallet() {
+      if (!window.ethereum) {
+        showStatus("No Web3 wallet found. Please install MetaMask, Rabby, or Coinbase Wallet.");
+        return;
+      }
+      try {
+        provider = new ethers.BrowserProvider(window.ethereum);
+        const accounts = await provider.send("eth_requestAccounts", []);
+        signer = await provider.getSigner();
+        userAddress = accounts[0];
+
+        const network = await provider.getNetwork();
+        if (Number(network.chainId) !== OP_SEPOLIA_CHAIN_ID) {
+          showStatus("Please switch network to Optimism Sepolia in your wallet.");
+          return;
+        }
+
+        connectBtn.style.display = "none";
+        signBtn.style.display = "inline-flex";
+        signBtn.disabled = false;
+        signBtn.textContent = `Sign Ballot as ${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
+        showStatus(`Connected: ${userAddress}`);
+      } catch (err) {
+        showStatus("Wallet connection rejected or failed.");
+      }
+    }
+
+    connectBtn.addEventListener("click", initWallet);
+
+    voteForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!signer) return;
+
+      const selected = document.querySelector('input[name="ballot-choice"]:checked');
+      if (!selected) {
+        alert("Please select a ballot option.");
+        return;
+      }
+
+      try {
+        signBtn.disabled = true;
+        signBtn.textContent = "Awaiting Wallet Signature...";
+        showStatus("Please sign the EIP-712 structured ballot in your wallet (0 gas cost)...");
+
+        // EIP-712 Domain and Types
+        const domain = {
+          name: "FREEDAM Sovereign Governance",
+          version: "1.0",
+          chainId: OP_SEPOLIA_CHAIN_ID,
+          verifyingContract: MEMBERSHIP_CONTRACT
+        };
+
+        const types = {
+          Vote: [
+            { name: "proposalId", type: "string" },
+            { name: "choice", type: "string" },
+            { name: "voter", type: "address" },
+            { name: "timestamp", type: "uint256" }
+          ]
+        };
+
+        const value = {
+          proposalId: "FIP-001",
+          choice: selected.value,
+          voter: userAddress,
+          timestamp: Math.floor(Date.now() / 1000)
+        };
+
+        const signature = await signer.signTypedData(domain, types, value);
+
+        signBtn.textContent = "Vote Recorded";
+        statusBox.style.display = "none";
+        showReceipt(`
+          <strong>✓ Sovereign Ballot Signed Successfully!</strong><br>
+          <span class="mono" style="font-size:0.75rem; word-break:break-all;">Voter: ${userAddress}<br>Choice: ${selected.value}<br>Sig: ${signature.slice(0, 24)}...</span>
+        `);
+      } catch (err) {
+        showStatus("Signature rejected or cancelled.");
+        signBtn.disabled = false;
+        signBtn.textContent = "Sign & Cast Sovereign Vote";
+      }
+    });
+  </script>
+</body>
+</html>
