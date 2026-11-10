@@ -1,12 +1,12 @@
 ---
 fip: 1
 title: Founding Ratification of the FREEDAM DAO Constitution and Governance Framework
-status: Draft
+status: Voting Open
 type: Constitutional
 author: Operator Core Team
 created: 2026-10-14
 voting_starts: 2026-10-15T00:00:00Z
-voting_ends: 2026-11-14T00:00:00Z
+voting_ends: 2027-03-31T23:59:59Z
 quorum_percentage: 25
 snapshot_chain_id: 11155420
 membership_contract: "0x9af71751842C9fcE04e8f10473DDa43A8f9409B7"
@@ -14,12 +14,22 @@ choices:
   - "For / Ratify"
   - "Against / Reject"
   - "Abstain"
+extensions:
+  - date: 2026-11-09
+    previous_end: 2026-11-14T00:00:00Z
+    new_end: 2027-03-31T23:59:59Z
+    reason: Founding pilot extension for member onboarding and promotion before constitutional close.
 ---
 
 # FIP-001: Founding Ratification of the FREEDAM DAO Constitution
 
 ## Abstract
-This proposal formally presents the **FREEDAM DAO Constitution v1.0** for founding member ratification. Approval of FIP-001 ratifies the sovereign governance architecture, the permissionless FRDM-ID membership model, the non-partisan protocol charter, and the 30-day Aura-weighted sovereign voting engine hosted at `freedamdao.org/vote`.
+This proposal formally presents the **FREEDAM DAO Constitution v1.0** for founding member ratification. Approval of FIP-001 ratifies the sovereign governance architecture, the permissionless FRDM-ID membership model, the non-partisan protocol charter, and the Aura-weighted sovereign voting engine hosted at `freedamdao.org/vote`.
+
+## Voting window
+- **Opened:** October 15, 2026
+- **Closes:** March 31, 2027
+- **Extension note (Nov 9, 2026):** Original end date was November 14, 2026. Extended through March 31, 2027 so founding members can mint, promote, and cast ballots before a constitutional close. Proposal substance and choices are unchanged.
 
 ## Motivation
 Decentralized autonomous movements require clear founding rules that protect members, establish democratic authority, and safeguard sovereignty without reliance on centralized, third-party governance intermediaries. By ratifying this Constitution, the community codifies:
