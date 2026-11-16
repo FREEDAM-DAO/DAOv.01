@@ -1,5 +1,6 @@
 {
-  "data_as_of": "2026-11-16T07:43:36.854Z",
+  "data_as_of": "2026-11-16T08:58:02.214Z",
+  "operator_pub_key": "0x302a300506032b657003210056d99bf9478e385936dadf99aad638ee513b06b25b469e4384e426219a5a8c1b",
   "event_count": 0,
   "totals": {
     "minted": 0,
@@ -8,5 +9,6 @@
     "slashed": 0
   },
   "balances": [],
+  "leaderboard": [],
   "events": []
 }
