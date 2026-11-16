@@ -1,0 +1,12 @@
+{
+  "data_as_of": "2026-11-16T07:43:36.854Z",
+  "event_count": 0,
+  "totals": {
+    "minted": 0,
+    "locked_aura": 0,
+    "burned": 0,
+    "slashed": 0
+  },
+  "balances": [],
+  "events": []
+}
