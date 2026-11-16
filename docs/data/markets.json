@@ -1,5 +1,5 @@
 {
-  "data_as_of": "2026-11-16T00:00:00Z",
+  "data_as_of": "2026-11-16T07:43:36.854Z",
   "batch_note": "Seed data for the Public Policy Explorer. All markets are state=proposed: they are sitting in the listing pipeline and no staking is possible until governance lists them. Topics are draft placeholders pending founder sign-off (SPEC decision D-9).",
   "markets": [
     {
@@ -14,10 +14,20 @@
       "stake_window_ends": "2026-12-04T00:00:00Z",
       "deadline": "2027-01-03T00:00:00Z",
       "state": "proposed",
-      "totals": { "for_aura": 0, "against_aura": 0, "for_count": 0, "against_count": 0 },
+      "totals": {
+        "for_aura": 0,
+        "against_aura": 0,
+        "for_count": 0,
+        "against_count": 0
+      },
       "coi_flags": [],
-      "resolution": { "outcome": null, "source_url": null, "vote_ref": null, "appeal_ends": null },
-      "data_as_of": "2026-11-16T00:00:00Z"
+      "resolution": {
+        "outcome": null,
+        "source_url": null,
+        "vote_ref": null,
+        "appeal_ends": null
+      },
+      "data_as_of": "2026-11-16T07:43:36.854Z"
     },
     {
       "id": "PM-002",
@@ -31,10 +41,20 @@
       "stake_window_ends": "2026-12-04T00:00:00Z",
       "deadline": "2027-10-01T00:00:00Z",
       "state": "proposed",
-      "totals": { "for_aura": 0, "against_aura": 0, "for_count": 0, "against_count": 0 },
+      "totals": {
+        "for_aura": 0,
+        "against_aura": 0,
+        "for_count": 0,
+        "against_count": 0
+      },
       "coi_flags": [],
-      "resolution": { "outcome": null, "source_url": null, "vote_ref": null, "appeal_ends": null },
-      "data_as_of": "2026-11-16T00:00:00Z"
+      "resolution": {
+        "outcome": null,
+        "source_url": null,
+        "vote_ref": null,
+        "appeal_ends": null
+      },
+      "data_as_of": "2026-11-16T07:43:36.854Z"
     },
     {
       "id": "PM-003",
@@ -48,10 +68,20 @@
       "stake_window_ends": "2026-12-04T00:00:00Z",
       "deadline": "2027-01-03T00:00:00Z",
       "state": "proposed",
-      "totals": { "for_aura": 0, "against_aura": 0, "for_count": 0, "against_count": 0 },
+      "totals": {
+        "for_aura": 0,
+        "against_aura": 0,
+        "for_count": 0,
+        "against_count": 0
+      },
       "coi_flags": [],
-      "resolution": { "outcome": null, "source_url": null, "vote_ref": null, "appeal_ends": null },
-      "data_as_of": "2026-11-16T00:00:00Z"
+      "resolution": {
+        "outcome": null,
+        "source_url": null,
+        "vote_ref": null,
+        "appeal_ends": null
+      },
+      "data_as_of": "2026-11-16T07:43:36.854Z"
     },
     {
       "id": "PM-004",
@@ -65,10 +95,20 @@
       "stake_window_ends": "2026-12-04T00:00:00Z",
       "deadline": "2027-01-03T00:00:00Z",
       "state": "proposed",
-      "totals": { "for_aura": 0, "against_aura": 0, "for_count": 0, "against_count": 0 },
+      "totals": {
+        "for_aura": 0,
+        "against_aura": 0,
+        "for_count": 0,
+        "against_count": 0
+      },
       "coi_flags": [],
-      "resolution": { "outcome": null, "source_url": null, "vote_ref": null, "appeal_ends": null },
-      "data_as_of": "2026-11-16T00:00:00Z"
+      "resolution": {
+        "outcome": null,
+        "source_url": null,
+        "vote_ref": null,
+        "appeal_ends": null
+      },
+      "data_as_of": "2026-11-16T07:43:36.854Z"
     },
     {
       "id": "PM-005",
@@ -82,10 +122,20 @@
       "stake_window_ends": "2026-12-04T00:00:00Z",
       "deadline": "2027-01-03T00:00:00Z",
       "state": "proposed",
-      "totals": { "for_aura": 0, "against_aura": 0, "for_count": 0, "against_count": 0 },
+      "totals": {
+        "for_aura": 0,
+        "against_aura": 0,
+        "for_count": 0,
+        "against_count": 0
+      },
       "coi_flags": [],
-      "resolution": { "outcome": null, "source_url": null, "vote_ref": null, "appeal_ends": null },
-      "data_as_of": "2026-11-16T00:00:00Z"
+      "resolution": {
+        "outcome": null,
+        "source_url": null,
+        "vote_ref": null,
+        "appeal_ends": null
+      },
+      "data_as_of": "2026-11-16T07:43:36.854Z"
     }
   ]
 }

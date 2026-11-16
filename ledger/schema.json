@@ -1,0 +1,29 @@
+{
+  "$id": "freedam/aura-ledger-event",
+  "title": "FREEDAM Aura Ledger Event (v1)",
+  "description": "Append-only event-sourced ledger. Closed vocabulary — no conversion path exists, so the one-way valve holds by construction (Ticket #2 D3/D5).",
+  "type": "object",
+  "required": ["seq", "type", "address", "amount", "ts", "prev_hash", "sig"],
+  "properties": {
+    "seq": { "type": "integer", "minimum": 1, "description": "1-based position in events.jsonl" },
+    "type": {
+      "type": "string",
+      "enum": ["mint", "lock", "resolve_win", "resolve_lose", "refund", "burn", "expire"],
+      "description": "CLOSED. mint|lock|resolve_win|resolve_lose|refund|burn|expire. No withdraw/redeem/convert can exist."
+    },
+    "address": { "type": "string", "pattern": "^0x[0-9a-fA-F]{40}$", "description": "Member wallet (FRDM-ID identity)" },
+    "amount": { "type": "integer", "minimum": 0, "description": "Integer Aura only, no floats" },
+    "market": { "type": "string", "pattern": "^PM-[0-9]{3}$", "description": "Required for lock/resolve_*; null otherwise" },
+    "side": { "type": "string", "enum": ["for", "against"], "description": "Required for lock/resolve_*" },
+    "ts": { "type": "string", "format": "date-time" },
+    "note": { "type": "string", "maxLength": 500, "description": "e.g. tx hash, ETH→$ rate used, reject reason" },
+    "prev_hash": { "type": "string", "pattern": "^0x[0-9a-f]{64}$", "description": "Hash of the previous event; '0x' + 64 zeros for seq 1" },
+    "sig": { "type": "string", "pattern": "^0x[0-9a-f]{128}$", "description": "Ledger-operator ed25519 signature over event_hash" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "enum": ["lock", "resolve_win", "resolve_lose", "refund"] } } },
+      "then": { "required": ["market"] }
+    }
+  ]
+}
