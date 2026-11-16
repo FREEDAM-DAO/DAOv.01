@@ -98,11 +98,75 @@
         el.appendChild(defs);
         var note = document.createElement('div');
         note.className = 'fd-panel';
-        note.innerHTML = '<h2 style="font-size:1rem;margin-top:0">Staking</h2>' +
-          (m.state === 'proposed'
-            ? '<p class="fd-sub">This market is <strong>proposed</strong> — still in the listing pipeline. Staking opens once governance lists it. Read it now; nothing is at stake yet.</p>'
-            : '<p class="fd-sub">Connect your wallet on the stake page when the stake window is open. Staking costs no gas: you sign an intent, and it locks in the next Sunday batch.</p>');
+        var stakeable = (m.state === 'open' || m.state === 'stalled');
+        var stakeHost = document.createElement('div');
+        note.appendChild(stakeHost);
         el.appendChild(note);
+
+        if (!stakeable) {
+          stakeHost.innerHTML = '<h2 style="font-size:1rem;margin-top:0">Staking</h2>' +
+            (m.state === 'proposed'
+              ? '<p class="fd-sub">This market is <strong>proposed</strong> — still in the listing pipeline. Staking opens once governance lists it. Read it now; nothing is at stake yet.</p>'
+              : '<p class="fd-sub">This market is no longer open for staking.</p>');
+        } else {
+          // --- Stake flow (SPEC increment 3): connect → dial + side toggle → sign EIP-712 → POST /api/intent. 0 gas. ---
+          stakeHost.innerHTML = '<h2 style="font-size:1rem;margin-top:0">Stake your Aura</h2>' +
+            '<p class="fd-sub">Staking costs no gas: you sign an intent in your wallet, it is stored, and it locks in this Sunday\'s batch. <strong>Pending is not locked</strong> — if your balance changed by then, the batch can reject it (the reject list is public).</p>' +
+            '<div class="fd-switch-wrap" style="margin:0.75rem 0"><button class="fd-switch" id="stake-side" role="switch" aria-checked="true" aria-label="Stake for"><span class="fd-switch-knob"></span></button><span id="stake-side-label" style="font-weight:600;color:var(--fd-for)">FOR</span></div>' +
+            '<div id="stake-dial"></div>' +
+            '<button class="fd-tab" id="stake-connect" style="margin-top:0.75rem">Connect wallet &amp; sign</button>' +
+            '<p id="stake-status" class="fd-sub" role="status" style="margin-top:0.75rem"></p>';
+          var status = stakeHost.querySelector('#stake-status');
+          var sideFor = true;
+          var sideBtn = stakeHost.querySelector('#stake-side');
+          sideBtn.addEventListener('click', function () {
+            sideFor = !sideFor;
+            sideBtn.setAttribute('aria-checked', String(sideFor));
+            var lbl = stakeHost.querySelector('#stake-side-label');
+            lbl.textContent = sideFor ? 'FOR' : 'AGAINST';
+            lbl.style.color = sideFor ? 'var(--fd-for)' : 'var(--fd-against)';
+          });
+          var dial = window.fdDial({ min: 10, max: 5000, value: 10, hint: 'Minimum 10 Aura. You can only stake one side per market.' });
+          stakeHost.querySelector('#stake-dial').appendChild(dial);
+          stakeHost.querySelector('#stake-connect').addEventListener('click', async function () {
+            status.textContent = 'Connecting wallet…';
+            try {
+              var ethersMod = await import('https://cdn.jsdelivr.net/npm/ethers@6.13.4/+esm');
+              if (!window.ethereum) { status.textContent = 'No wallet found in this browser. Install MetaMask (or any EIP-1193 wallet) to stake.'; return; }
+              await window.ethereum.request({ method: 'eth_requestAccounts' });
+              var provider = new ethersMod.BrowserProvider(window.ethereum);
+              var signer = await provider.getSigner();
+              var addr = await signer.getAddress();
+              var network = await provider.getNetwork();
+              if (Number(network.chainId) !== 11155420) {
+                try { await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x8274f' }] }); }
+                catch (e) { status.textContent = 'Please switch your wallet to OP Sepolia (testnet) to stake.'; return; }
+              }
+              status.textContent = 'Signing the stake intent in your wallet (0 gas)…';
+              var domain = { name: 'FREEDAM Policy Market', version: '1', chainId: 11155420, verifyingContract: m.contract || '0x9af71751842C9fcE04e8f10473DDa43A8f9409B7' };
+              var types = { Stake: [
+                { name: 'marketId', type: 'string' }, { name: 'side', type: 'string' },
+                { name: 'amount', type: 'uint256' }, { name: 'nonce', type: 'uint256' },
+                { name: 'deadline', type: 'uint256' } ] };
+              var intent = { marketId: m.id, side: sideFor ? 'for' : 'against', amount: dial.getValue(), nonce: Math.floor(Math.random() * 1e9), deadline: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 14 };
+              var sig = await signer.signTypedData(domain, types, intent);
+              status.textContent = 'Storing your signed intent…';
+              var res = await fetch('/api/intent', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...intent, address: addr, signature: sig })
+              });
+              var out = await res.json();
+              if (res.status === 201) {
+                status.textContent = '✓ Signed and stored — pending. It locks in this Sunday\'s batch if your balance still covers it. Nothing else to do.';
+                stakeHost.querySelector('#stake-connect').disabled = true;
+              } else {
+                status.textContent = 'Not stored (' + (out.error || res.status) + '): ' + (out.detail || 'check the market state and try again.');
+              }
+            } catch (err) {
+              status.textContent = err && err.code === 'ACTION_REJECTED' ? 'Signature cancelled — nothing was stored.' : 'Could not complete staking: ' + (err.message || err);
+            }
+          });
+        }
         root.innerHTML = '';
         root.appendChild(el);
       }).catch(function (err) {
