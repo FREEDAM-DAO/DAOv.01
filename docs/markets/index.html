@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Policy Aura Market | FREEDAM DAO</title>
+  <meta name="description" content="Explore FREEDAM DAO's Policy Aura Market: real policy questions, member conviction staked in Aura points. No money at risk — Aura cannot convert back to money.">
+  <meta property="og:title" content="FREEDAM Policy Aura Market">
+  <meta property="og:description" content="Real policy questions. Member conviction in Aura. Public, neutral, no money at risk.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.freedamdao.org/markets/">
+  <link rel="stylesheet" href="/assets/fd.css">
+</head>
+<body class="fd-body">
+  <nav class="fd-nav">
+    <a class="fd-logo" href="/">FREEDAM<span class="fd-latch">DAO</span></a>
+    <div>
+      <a href="/join/">Join</a>
+      <a href="/mint/">Mint</a>
+      <a href="/vote/">Vote</a>
+      <a href="/markets/" aria-current="page">Markets</a>
+    </div>
+  </nav>
+
+  <main class="fd-main">
+    <p class="fd-kicker">Public Policy Explorer</p>
+    <h1 class="fd-h1">Policy Aura Market</h1>
+    <p class="fd-sub">Real questions about real policy. Members stake <strong>Aura points</strong> — earned by
+      contributing, never bought with money and never convertible back to money — on the outcome they
+      believe in. When a market resolves, the members who called it correctly earn recognition.</p>
+    <noscript><p>This page needs JavaScript for the interactive explorer. The raw data is available as
+      <a href="/data/markets.json">static JSON</a>.</p></noscript>
+
+    <div class="fd-tablist fd-tabs" role="tablist" aria-label="Market status" id="tabs">
+      <button class="fd-tab" role="tab" id="tab-open" aria-controls="panel-open">Open</button>
+      <button class="fd-tab" role="tab" id="tab-proposed" aria-controls="panel-proposed">Proposed</button>
+      <button class="fd-tab" role="tab" id="tab-resolved" aria-controls="panel-resolved">Resolved</button>
+    </div>
+    <div class="fd-tabpanel" role="tabpanel" id="panel-open" aria-labelledby="tab-open" tabindex="0">
+      <p class="fd-sub" data-empty="open">Loading market data…</p>
+      <div class="fd-market-grid" data-grid="open"></div>
+    </div>
+    <div class="fd-tabpanel" role="tabpanel" id="panel-proposed" aria-labelledby="tab-proposed" tabindex="0" hidden>
+      <p class="fd-sub">Proposed markets are in the listing pipeline. Members can read them now; staking opens once governance lists them.</p>
+      <div class="fd-market-grid" data-grid="proposed"></div>
+    </div>
+    <div class="fd-tabpanel" role="tabpanel" id="panel-resolved" aria-labelledby="tab-resolved" tabindex="0" hidden>
+      <p class="fd-sub" data-empty="resolved">No resolved markets yet. Resolved markets will show the outcome and our members' calls.</p>
+      <div class="fd-market-grid" data-grid="resolved"></div>
+    </div>
+
+    <div class="fd-panel">
+      <h2 style="font-size:1.1rem;margin-top:0">How it works</h2>
+      <p class="fd-sub">1. Read the plain-language summary and the exact resolution condition.<br>
+        2. Stake Aura for or against before the stake window closes (staking opens with the first listed market).<br>
+        3. When the outcome is verified against the resolution source, correct callers get their stake back plus a share of the losing pool. Everyone's calls are on the public record.</p>
+    </div>
+  </main>
+
+  <footer class="fd-footer">
+    <p>
+      <span class="fd-footer-motion"></span>
+      · Data as of <span id="data-as-of">—</span>
+      · <a href="/data/markets.json">Raw market data (JSON)</a>
+      · <a href="/assets/THIRD_PARTY_NOTICES.md">Third-party notices</a>
+    </p>
+    <p>FREEDAM DAO is a non-partisan civic movement. This is not a market for money; Aura cannot be bought or cashed out.</p>
+  </footer>
+
+  <script src="/assets/fd.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      var stateLabels = {
+        open: 'OPEN', proposed: 'PROPOSED', stalled: 'STALLED',
+        resolved_yes: 'RESOLVED · YES', resolved_no: 'RESOLVED · NO',
+        unresolved: 'UNRESOLVED', in_appeal: 'IN APPEAL'
+      };
+      function card(m) {
+        var a = document.createElement('a');
+        a.className = 'fd-market-card';
+        a.href = 'view.html?id=' + encodeURIComponent(m.id);
+        var chip = document.createElement('span');
+        chip.className = 'fd-chip';
+        chip.setAttribute('data-state', m.state);
+        chip.textContent = stateLabels[m.state] || m.state;
+        var h = document.createElement('h3');
+        h.textContent = m.title;
+        var meta = document.createElement('p');
+        meta.className = 'fd-meta';
+        meta.textContent = m.jurisdiction + ' · deadline ' + m.deadline.slice(0, 10);
+        a.appendChild(chip); a.appendChild(h); a.appendChild(meta);
+        if (m.state === 'open' || m.state === 'stalled') {
+          a.appendChild(window.fdMeter(m.totals));
+        }
+        return a;
+      }
+      fetch('/data/markets.json').then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function (data) {
+        document.getElementById('data-as-of').textContent = data.data_as_of;
+        var counts = { open: 0, proposed: 0, resolved: 0 };
+        data.markets.forEach(function (m) {
+          var key = m.state.indexOf('resolved') === 0 || m.state === 'unresolved' || m.state === 'in_appeal' ? 'resolved'
+            : m.state === 'proposed' ? 'proposed' : 'open';
+          counts[key]++;
+          document.querySelector('[data-grid="' + key + '"]').appendChild(card(m));
+        });
+        Object.keys(counts).forEach(function (k) {
+          var empty = document.querySelector('[data-empty="' + k + '"]');
+          if (empty) empty.textContent = counts[k] === 0
+            ? 'No ' + k + ' markets right now.'
+            : '';
+        });
+      }).catch(function (err) {
+        document.querySelectorAll('[data-empty]').forEach(function (p) {
+          p.textContent = 'Could not load market data (' + err.message + '). Try the raw JSON link below.';
+        });
+      });
+      window.fdTabs(document.getElementById('tabs'));
+      window.fdInstallMotionToggle();
+    })();
+  </script>
+</body>
+</html>

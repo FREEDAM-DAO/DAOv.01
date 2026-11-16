@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Detail | FREEDAM DAO</title>
+  <meta name="description" content="Policy Aura Market detail: plain-language summary, exact resolution condition, member conviction totals.">
+  <link rel="stylesheet" href="/assets/fd.css">
+</head>
+<body class="fd-body">
+  <nav class="fd-nav">
+    <a class="fd-logo" href="/">FREEDAM<span class="fd-latch">DAO</span></a>
+    <div>
+      <a href="/markets/">← All markets</a>
+    </div>
+  </nav>
+
+  <main class="fd-main">
+    <div id="market-root">
+      <p class="fd-sub" role="status">Loading market…</p>
+    </div>
+    <noscript><p>This page needs JavaScript to show market details. The raw data is available as
+      <a href="/data/markets.json">static JSON</a>.</p></noscript>
+  </main>
+
+  <footer class="fd-footer">
+    <p>
+      <span class="fd-footer-motion"></span>
+      · <a href="/data/markets.json">Raw market data (JSON)</a>
+      · <a href="/assets/THIRD_PARTY_NOTICES.md">Third-party notices</a>
+    </p>
+    <p>FREEDAM DAO is a non-partisan civic movement. This is not a market for money; Aura cannot be bought or cashed out.</p>
+  </footer>
+
+  <script src="/assets/fd.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      var root = document.getElementById('market-root');
+      var params = new URLSearchParams(location.search);
+      var id = params.get('id') || '';
+      // Strict id validation: PM-### only, so nothing unvalidated reaches textContent sinks.
+      if (!/^PM-[0-9]{3}$/.test(id)) {
+        root.innerHTML = '<h1 class="fd-h1">Market not found</h1><p class="fd-sub">Use the <a href="/markets/">market listing</a> to pick a market.</p>';
+        return;
+      }
+      fetch('/data/markets.json').then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function (data) {
+        var m = data.markets.find(function (x) { return x.id === id; });
+        if (!m) {
+          root.innerHTML = '<h1 class="fd-h1">Market not found</h1><p class="fd-sub">Use the <a href="/markets/">market listing</a> to pick a market.</p>';
+          return;
+        }
+        document.title = m.id + ' · ' + m.title + ' | FREEDAM DAO';
+        var el = document.createElement('div');
+        var kick = document.createElement('p');
+        kick.className = 'fd-kicker';
+        kick.textContent = m.id + ' · ' + m.jurisdiction;
+        var h = document.createElement('h1');
+        h.className = 'fd-h1';
+        h.textContent = m.title;
+        el.appendChild(kick); el.appendChild(h);
+        el.appendChild(window.fdLCD(m.state,
+          m.state === 'open' ? 'STAKE WINDOW ENDS ' + m.stake_window_ends.slice(0, 10) : ''));
+        if (m.state === 'open' || m.state === 'stalled') {
+          var meterPanel = document.createElement('div');
+          meterPanel.className = 'fd-panel';
+          var meterLabel = document.createElement('h2');
+          meterLabel.style.fontSize = '1rem'; meterLabel.style.marginTop = '0';
+          meterLabel.textContent = 'Member conviction';
+          meterPanel.appendChild(meterLabel);
+          meterPanel.appendChild(window.fdMeter(m.totals));
+          el.appendChild(meterPanel);
+        }
+        var defs = document.createElement('dl');
+        function row(dt, ddHtml) {
+          var d = document.createElement('div');
+          d.className = 'fd-defrow';
+          var t = document.createElement('dt'); t.textContent = dt;
+          var v = document.createElement('dd'); v.innerHTML = ddHtml;
+          d.appendChild(t); d.appendChild(v); defs.appendChild(d);
+        }
+        function esc(s) {
+          return String(s).replace(/[&<>"]/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+          });
+        }
+        row('In plain language', esc(m.summary_plain));
+        row('Policy under watch', '<a href="' + esc(m.policy_link) + '" rel="noopener noreferrer">View the source policy ↗</a>');
+        row('Resolves YES if…', esc(m.condition));
+        row('Resolution source', esc(m.resolution_source));
+        row('Opens', esc(m.opens_at.slice(0, 10)));
+        row('Stake window ends', esc(m.stake_window_ends.slice(0, 10)));
+        row('Deadline', esc(m.deadline.slice(0, 10)));
+        row('Data as of', esc(m.data_as_of));
+        el.appendChild(defs);
+        var note = document.createElement('div');
+        note.className = 'fd-panel';
+        note.innerHTML = '<h2 style="font-size:1rem;margin-top:0">Staking</h2>' +
+          (m.state === 'proposed'
+            ? '<p class="fd-sub">This market is <strong>proposed</strong> — still in the listing pipeline. Staking opens once governance lists it. Read it now; nothing is at stake yet.</p>'
+            : '<p class="fd-sub">Connect your wallet on the stake page when the stake window is open. Staking costs no gas: you sign an intent, and it locks in the next Sunday batch.</p>');
+        el.appendChild(note);
+        root.innerHTML = '';
+        root.appendChild(el);
+      }).catch(function (err) {
+        root.innerHTML = '<h1 class="fd-h1">Could not load market</h1><p class="fd-sub">' + err.message + ' — try the <a href="/data/markets.json">raw JSON</a>.</p>';
+      });
+    })();
+  </script>
+</body>
+</html>
