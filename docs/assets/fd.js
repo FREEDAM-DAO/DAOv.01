@@ -1,6 +1,7 @@
 /*
  * FREEDAM Instrument Kit (fd.js) — shared behaviors for freedamdao.org
- * Visual language adapted from SPEC-01 (MIT License, © 2026 Shu Ding).
+ * Visual language adapted from vercel-labs/ui (Apache-2.0, © Vercel —
+ * https://github.com/vercel-labs/ui). Original implementation; no upstream source copied.
  * See docs/assets/THIRD_PARTY_NOTICES.md for attribution.
  *
  * No wallet code here — ethers loads only on pages that need it.

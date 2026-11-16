@@ -1,0 +1,11 @@
+{
+  "name": "freedam-site",
+  "version": "0.1.0",
+  "private": true,
+  "description": "freedamdao.org static site + Vercel Functions (Root Directory of DAOv.01)",
+  "license": "MIT",
+  "dependencies": {
+    "@vercel/blob": "^1.1.1",
+    "ethers": "^6.17.0"
+  }
+}

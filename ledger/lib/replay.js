@@ -91,18 +91,19 @@ function replay(events) {
   const totals = { minted: 0, locked_aura: 0, burned: 0, slashed: 0 };
   const short = (a) => a.slice(0, 6) + '…' + a.slice(-4);
 
-  function credit(addr, amt) { balances.set(addr, (balances.get(addr) || 0) + amt); }
+  function credit(addr, amt) { const a = addr.toLowerCase(); balances.set(a, (balances.get(a) || 0) + amt); }
   function debit(addr, amt, seq) {
-    const bal = balances.get(addr) || 0;
-    if (amt > bal) throw new LedgerError('OVERDRAW', `seq ${seq}: ${short(addr)} overdraws (${amt} > ${bal})`);
-    balances.set(addr, bal - amt);
+    const a = addr.toLowerCase();
+    const bal = balances.get(a) || 0;
+    if (amt > bal) throw new LedgerError('OVERDRAW', `seq ${seq}: ${short(a)} overdraws (${amt} > ${bal})`);
+    balances.set(a, bal - amt);
   }
   function decMarket(market, side, amount) {
     const mt = marketTotals.get(market);
     if (mt) mt[side + '_aura'] -= amount;
   }
   function popLock(addr, market, seq) {
-    const perMarket = locked.get(addr) || {};
+    const perMarket = locked.get(addr.toLowerCase()) || {};
     const stake = perMarket[market];
     if (!stake) throw new LedgerError('RESOLVE', `seq ${seq}: ${short(addr)} has no lock on ${market}`);
     delete perMarket[market];
@@ -117,11 +118,12 @@ function replay(events) {
         break;
       case 'lock': {
         if (ev.amount < 10) throw new LedgerError('FLOOR', `seq ${ev.seq}: stake below 10-Aura floor (D9)`);
-        const perMarket = locked.get(ev.address) || {};
-        if (perMarket[ev.market]) throw new LedgerError('SIDE_DUP', `seq ${ev.seq}: ${short(ev.address)} already staked ${ev.market} — one side per member per market (D-8)`);
+        const member = ev.address.toLowerCase();
+        const perMarket = locked.get(member) || {};
+        if (perMarket[ev.market]) throw new LedgerError('SIDE_DUP', `seq ${ev.seq}: ${short(member)} already staked ${ev.market} — one side per member per market (D-8)`);
         debit(ev.address, ev.amount, ev.seq);
         perMarket[ev.market] = { side: ev.side, amount: ev.amount, seq: ev.seq, ts: ev.ts };
-        locked.set(ev.address, perMarket);
+        locked.set(member, perMarket);
         const mt = marketTotals.get(ev.market) || { for_aura: 0, against_aura: 0, for_count: 0, against_count: 0 };
         mt[ev.side + '_aura'] += ev.amount;
         mt[ev.side + '_count'] += 1;
@@ -130,7 +132,7 @@ function replay(events) {
         break;
       }
       case 'resolve_win': {
-        const stake = popLock(ev.address, ev.market, ev.seq);
+        const stake = popLock(ev.address.toLowerCase(), ev.market, ev.seq);
         if (ev.amount < stake.amount) throw new LedgerError('RESOLVE', `seq ${ev.seq}: win payout ${ev.amount} < principal ${stake.amount}`);
         credit(ev.address, ev.amount);
         totals.locked_aura -= stake.amount;
@@ -138,7 +140,7 @@ function replay(events) {
         break;
       }
       case 'resolve_lose': {
-        const stake = popLock(ev.address, ev.market, ev.seq);
+        const stake = popLock(ev.address.toLowerCase(), ev.market, ev.seq);
         if (ev.amount !== 0) throw new LedgerError('LOSE', 'resolve_lose amount must be 0 — the stake is slashed to the 75/20/5 split (never returned)');
         totals.locked_aura -= stake.amount;
         totals.slashed += stake.amount;
@@ -146,7 +148,7 @@ function replay(events) {
         break;
       }
       case 'refund': { // dead market (D-6): full refund of the locked stake
-        const stake = popLock(ev.address, ev.market, ev.seq);
+        const stake = popLock(ev.address.toLowerCase(), ev.market, ev.seq);
         credit(ev.address, stake.amount);
         totals.locked_aura -= stake.amount;
         decMarket(ev.market, stake.side, stake.amount);

@@ -5,11 +5,12 @@
 native HTML controls, licensed MIT alongside the rest of this repository.
 
 The visual direction (instrument-panel components: segmented LED meters, LCD status
-readouts, hardware toggles, dials) follows the kit described in the internal FREEDAM
-spec as "SPEC-01" (MIT, © 2026 Shu Ding). No source files from that project are
-copied or redistributed here; the implementation is original. When the upstream
-repository URL is confirmed, this notice will be updated with a direct link and the
-exact MIT license text of that project.
+readouts, hardware toggles, dials) follows **vercel-labs/ui** (the UI SDK,
+https://github.com/vercel-labs/ui — Apache License 2.0, © Vercel and contributors,
+authors incl. Rauno Freiberg (shadcn) and Shu Ding). No source files from that
+project are copied or redistributed here; the implementation is original, and the
+upstream library remains Apache-2.0.
 
 Other third-party assets: ethers.js (loaded only on wallet pages), MIT License,
 © ethers.io contributors — served from jsDelivr on the pages that use it.
+
