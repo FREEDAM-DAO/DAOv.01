@@ -126,6 +126,36 @@ async function axeAudit(html, label) {
   check('detail: strict id validation present (regex PM-###, textContent sinks, esc() on data)', () => {
     assert.ok(vHtml.includes('/^PM-[0-9]{3}$/') && vHtml.includes('textContent') && vHtml.includes('function esc('));
   });
+  check('detail: resolution readout wired (resolved_yes/no/unresolved panels)', () => {
+    assert.ok(vHtml.includes('Our members called it') && vHtml.includes('resolved_yes') && vHtml.includes('unresolved'));
+  });
+
+  // ---- ledger page: render with empty data + axe ----
+  const emptyLedger = { data_as_of: '2026-11-16T00:00:00Z', operator_pub_key: '0xabc', event_count: 0, totals: { minted: 0, locked_aura: 0, burned: 0, slashed: 0 }, balances: [], leaderboard: [], events: [] };
+  const ldom = await JSDOM.fromFile(path.join(ROOT, 'ledger', 'index.html'), {
+    runScripts: 'dangerously', url: 'https://freedamdao.org/ledger/',
+    beforeParse(window) {
+      window.fetch = (u) => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(emptyLedger) });
+    }
+  });
+  ldom.window.eval(kitSrc);
+  await new Promise((res, rej) => {
+    const t = setTimeout(() => rej(new Error('ledger render timeout')), 8000);
+    const obs = new ldom.window.MutationObserver(() => {
+      if (ldom.window.document.getElementById('events')?.querySelector('p, table')) { clearTimeout(t); obs.disconnect(); res(); }
+    });
+    obs.observe(ldom.window.document.body, { childList: true, subtree: true });
+  });
+  const ld = ldom.window.document;
+  check('ledger page: renders empty states honestly (no fake data)', () => {
+    assert.ok(ld.getElementById('leaderboard').textContent.includes('No resolved markets yet'));
+    assert.ok(ld.getElementById('balances').textContent.includes('No balances yet'));
+  });
+  ldom.window.eval(fs.readFileSync(path.join(__dirname, '..', 'node_modules', 'axe-core', 'axe.min.js'), 'utf8'));
+  const lres = await ldom.window.eval('axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] })');
+  const lserious = lres.violations.filter(v => ['serious', 'critical'].includes(v.impact));
+  console.log('  axe ledger:', lserious.length, 'serious/critical; all:', lres.violations.map(v => v.id + ':' + v.impact).join(', ') || 'none');
+  check('ledger page: axe 0 serious/critical', () => assert.strictEqual(lserious.length, 0));
   console.log(failures === 0 ? '\nALL CHECKS GREEN' : `\n${failures} CHECK(S) FAILED`);
   process.exit(failures === 0 ? 0 : 1);
 })().catch(e => { console.log('  FAIL integration —', e.message); process.exit(1); });

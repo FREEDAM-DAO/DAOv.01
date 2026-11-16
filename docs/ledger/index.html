@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Public Ledger | FREEDAM DAO</title>
+  <meta name="description" content="The FREEDAM Aura ledger, in public: every point minted, staked, won, lost, refunded or burned — and our members' correct calls.">
+  <meta property="og:title" content="FREEDAM Public Ledger">
+  <meta property="og:description" content="Open books: every Aura event on the record.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="/assets/fd.css">
+</head>
+<body class="fd-body">
+  <nav class="fd-nav">
+    <a class="fd-logo" href="/">FREEDAM<span class="fd-latch">DAO</span></a>
+    <div>
+      <a href="/markets/">Markets</a>
+      <a href="/ledger/" aria-current="page">Ledger</a>
+    </div>
+  </nav>
+
+  <main class="fd-main">
+    <p class="fd-kicker">Open books</p>
+    <h1 class="fd-h1">Public Ledger</h1>
+    <p class="fd-sub">Every Aura point ever minted, staked, won, lost, refunded or burned — on the
+      public record. There is no event type that converts Aura back to money; the books can't
+      express one. Data as of <span id="data-as-of">—</span>.</p>
+
+    <div class="fd-panel">
+      <h2 style="font-size:1.1rem;margin-top:0">Our members called it</h2>
+      <p class="fd-sub" style="margin-bottom:0.75rem">Ranked by <strong>correct calls</strong> — never by Aura won.
+        Accuracy appears once a member has called 3+ resolved markets.</p>
+      <div id="leaderboard"></div>
+    </div>
+
+    <div class="fd-panel">
+      <h2 style="font-size:1.1rem;margin-top:0">Totals</h2>
+      <p class="fd-sub" id="totals" role="status">Loading…</p>
+    </div>
+
+    <div class="fd-panel">
+      <h2 style="font-size:1.1rem;margin-top:0">Balances</h2>
+      <div id="balances"></div>
+    </div>
+
+    <div class="fd-panel">
+      <h2 style="font-size:1.1rem;margin-top:0">Event history</h2>
+      <p class="fd-sub" style="margin-bottom:0.75rem">Full event chain. Each event is hash-chained to the
+        previous one and signed by the operator — silent edits are detectable. Raw data:
+        <a href="/data/ledger.json">ledger.json</a>.</p>
+      <div id="events"></div>
+    </div>
+  </main>
+
+    <footer class="fd-footer">
+    <p>
+      <span class="fd-footer-motion"></span>
+      · Operator key: <code id="op-key">—</code>
+      · <a href="/data/ledger.json">Raw ledger (JSON)</a>
+      · <a href="/data/markets.json">Raw market data (JSON)</a>
+      · <a href="/assets/THIRD_PARTY_NOTICES.md">Third-party notices</a>
+    </p>
+    <p>FREEDAM DAO is a non-partisan civic movement. Aura cannot be bought or cashed out.</p>
+  </footer>
+
+  <script src="/assets/fd.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      function el(tag, cls, text) {
+        var e = document.createElement(tag);
+        if (cls) e.className = cls;
+        if (text != null) e.textContent = text;
+        return e;
+      }
+      function table(headers, rows) {
+        var t = el('table', 'fd-readout');
+        var tr = el('tr');
+        headers.forEach(function (h) { tr.appendChild(el('th', null, h)); });
+        var thead = el('thead'); thead.appendChild(tr); t.appendChild(thead);
+        var tb = el('tbody');
+        rows.forEach(function (r) { tb.appendChild(r); });
+        t.appendChild(tb);
+        return t;
+      }
+      fetch('/data/ledger.json').then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function (d) {
+        document.getElementById('data-as-of').textContent = d.data_as_of;
+        if (d.operator_pub_key) document.getElementById('op-key').textContent = d.operator_pub_key.slice(0, 20) + '…';
+        var t = document.getElementById('totals');
+        t.textContent = 'Minted ' + (d.totals.minted || 0).toLocaleString('en-US') +
+          ' Aura · locked ' + (d.totals.locked_aura || 0).toLocaleString('en-US') +
+          ' · slashed by resolution ' + (d.totals.slashed || 0).toLocaleString('en-US') +
+          ' · explicitly burned ' + (d.totals.burned || 0).toLocaleString('en-US') +
+          ' · ' + d.event_count + ' events.';
+
+        // Leaderboard
+        var lb = document.getElementById('leaderboard');
+        if (!d.leaderboard.length) {
+          lb.appendChild(el('p', 'fd-sub', 'No resolved markets yet. When a market resolves, the members who called it correctly appear here.'));
+        } else {
+          lb.appendChild(table(['#', 'Member', 'Correct calls', 'Markets called', 'Accuracy', 'Member #'],
+            d.leaderboard.map(function (m) {
+              var tr = el('tr');
+              if (m.coi_flagged) tr.title = 'Conflict-of-interest flagged';
+              tr.appendChild(el('td', null, String(m.rank)));
+              var name = el('td', null, m.short + (m.coi_flagged ? ' ⚑COI' : ''));
+              tr.appendChild(name);
+              tr.appendChild(el('td', 'fd-num', String(m.correct_calls)));
+              tr.appendChild(el('td', 'fd-num', String(m.calls)));
+              tr.appendChild(el('td', 'fd-num', m.accuracy == null ? '—' : Math.round(m.accuracy * 100) + '%'));
+              tr.appendChild(el('td', 'fd-num', m.member_number == null ? '—' : '#' + m.member_number));
+              return tr;
+            })));
+        }
+
+        // Balances
+        var bb = document.getElementById('balances');
+        if (!d.balances.length) {
+          bb.appendChild(el('p', 'fd-sub', 'No balances yet — the first mint batch has not run.'));
+        } else {
+          bb.appendChild(table(['Member', 'Spendable Aura'], d.balances.map(function (b) {
+            var tr = el('tr');
+            tr.appendChild(el('td', null, b.address.slice(0, 6) + '…' + b.address.slice(-4)));
+            tr.appendChild(el('td', 'fd-num', b.aura.toLocaleString('en-US')));
+            return tr;
+          })));
+        }
+
+        // Events
+        var ev = document.getElementById('events');
+        ev.appendChild(table(['Seq', 'Event', 'Member', 'Aura', 'Market', 'When'],
+          d.events.slice().reverse().map(function (e) {
+            var tr = el('tr');
+            tr.appendChild(el('td', null, String(e.seq)));
+            tr.appendChild(el('td', null, e.type));
+            tr.appendChild(el('td', null, e.address.slice(0, 6) + '…' + e.address.slice(-4)));
+            tr.appendChild(el('td', 'fd-num', e.amount ? e.amount.toLocaleString('en-US') : '—'));
+            tr.appendChild(el('td', null, e.market ? e.market + (e.side ? ' · ' + e.side : '') : '—'));
+            tr.appendChild(el('td', null, e.ts.slice(0, 10)));
+            return tr;
+          })));
+      }).catch(function (err) {
+        document.querySelectorAll('.fd-panel').forEach(function (p) {
+          p.appendChild(el('p', 'fd-sub', 'Could not load ledger data (' + err.message + '). Try the raw JSON link below.'));
+        });
+      });
+      window.fdInstallMotionToggle();
+    })();
+  </script>
+</body>
+</html>

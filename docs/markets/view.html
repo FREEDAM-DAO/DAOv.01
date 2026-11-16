@@ -12,6 +12,7 @@
     <a class="fd-logo" href="/">FREEDAM<span class="fd-latch">DAO</span></a>
     <div>
       <a href="/markets/">← All markets</a>
+      <a href="/ledger/">Ledger</a>
     </div>
   </nav>
 
@@ -98,6 +99,30 @@
         el.appendChild(defs);
         var note = document.createElement('div');
         note.className = 'fd-panel';
+        // Resolution readout — "Our members called it" (increment 4)
+        if (m.state === 'resolved_yes' || m.state === 'resolved_no') {
+          var called = document.createElement('div');
+          called.className = 'fd-panel';
+          var ch = document.createElement('h2');
+          ch.style.fontSize = '1.1rem'; ch.style.marginTop = '0';
+          ch.textContent = 'Our members called it';
+          called.appendChild(ch);
+          var cr = document.createElement('p');
+          cr.className = 'fd-sub';
+          var outcomeTxt = m.state === 'resolved_yes' ? 'RESOLVED · YES' : 'RESOLVED · NO';
+          cr.textContent = 'Outcome: ' + outcomeTxt + '. Verified against the resolution source' +
+            (m.resolution && m.resolution.source_url ? ' (' + m.resolution.source_url + ')' : '') + '. ' +
+            'The members who called it correctly are credited on the public ledger — ' +
+            'see /ledger/ for the “our members called it” board.';
+          called.appendChild(cr);
+          el.appendChild(called);
+        } else if (m.state === 'unresolved') {
+          var dead = document.createElement('div');
+          dead.className = 'fd-panel';
+          dead.appendChild(Object.assign(document.createElement('h2'), { textContent: 'Market closed — unresolved', style: 'font-size:1.1rem;margin-top:0' }));
+          dead.appendChild(Object.assign(document.createElement('p'), { className: 'fd-sub', textContent: 'This market was closed without an outcome. Every stake was fully refunded (no fees exist off-chain).' }));
+          el.appendChild(dead);
+        }
         var stakeable = (m.state === 'open' || m.state === 'stalled');
         var stakeHost = document.createElement('div');
         note.appendChild(stakeHost);
