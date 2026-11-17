@@ -101,8 +101,12 @@ const fromBlock = Number(arg('--from-block') || FRDM_DEPLOY_BLOCK);
   for (const s of seen) {
     if (done.has(s.tx)) continue;
     const amount = auraByAddr.get(s.member) || 0;
-    if (amount <= 0) continue;
-    const e = { seq: ++seq, type: 'mint', address: s.member, amount, ts: now, note: `donation $${s.usd.toFixed(2)} @ $${rate}/ETH; block ${s.block}; tx:${s.tx}`, prev_hash: prevHash };
+    // 0-donation mints (e.g. founderMint) ARE recorded — amount 0, honest note.
+    // They anchor the ledger genesis and give the monthly seal something real to timestamp.
+    if (amount <= 0 && s.usd > 0) continue; // skip only when a real donation somehow mints 0 (cap edge)
+    const e = { seq: ++seq, type: 'mint', address: s.member, amount, ts: now, note: amount === 0
+      ? `membership mint, 0 donation → 0 Aura (genesis); block ${s.block}; tx:${s.tx}`
+      : `donation $${s.usd.toFixed(2)} @ $${rate}/ETH; block ${s.block}; tx:${s.tx}`, prev_hash: prevHash };
     validateEvent(e);
     e.hash = '0x' + crypto.createHash('sha256').update(JSON.stringify({
       seq: e.seq, type: e.type, address: e.address, amount: e.amount,
