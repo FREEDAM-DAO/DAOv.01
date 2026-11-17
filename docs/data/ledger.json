@@ -1,14 +1,30 @@
 {
-  "data_as_of": "2026-11-16T08:58:02.214Z",
+  "data_as_of": "2026-11-17T04:09:48.726Z",
   "operator_pub_key": "0x302a300506032b657003210056d99bf9478e385936dadf99aad638ee513b06b25b469e4384e426219a5a8c1b",
-  "event_count": 0,
+  "event_count": 1,
   "totals": {
     "minted": 0,
     "locked_aura": 0,
     "burned": 0,
     "slashed": 0
   },
-  "balances": [],
+  "balances": [
+    {
+      "address": "0x3acb94db8d968cb35393a72394ff16460e66919d",
+      "aura": 0
+    }
+  ],
   "leaderboard": [],
-  "events": []
+  "events": [
+    {
+      "seq": 1,
+      "type": "mint",
+      "address": "0x3acb94db8d968cb35393a72394ff16460e66919d",
+      "amount": 0,
+      "market": null,
+      "side": null,
+      "ts": "2026-11-17T04:09:48.690Z",
+      "note": "membership mint, 0 donation → 0 Aura (genesis); block 49516026; tx:0x3b48be7a0823fe1c14e4fea1f68170e1ab9007835cf0c5276bbbcf8154b3fd3d"
+    }
+  ]
 }
